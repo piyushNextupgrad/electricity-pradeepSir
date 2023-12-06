@@ -1,5 +1,5 @@
 export async function verifyData() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("Etoken");
   try {
     const data = await fetch(process.env.SITE_URL + "verify", {
       method: "POST",
