@@ -15,6 +15,7 @@ import { postData } from "@/services/services";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Toaster, toast } from "sonner";
+import { verifyIsLoggedIn } from "@/helper/helper";
 
 export default function Home() {
   const router = useRouter();
@@ -23,26 +24,27 @@ export default function Home() {
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("Etoken");
-    if (token) {
-      router.push("/Dashboard");
-    }
+    verifyIsLoggedIn(router);
   }, []);
 
   //function to manage login form
   async function handleSubmit(event) {
     event.preventDefault();
-    setisSubmitingLoader(true);
-    const result = await postData("/login", { email: email, password: pass });
-    console.log("result", result);
-    if (result.success) {
-      localStorage.setItem("Etoken");
-      setisSubmitingLoader(false);
-      toast.success("Login Successfull");
-      router.push("/Dashboard");
-    } else {
-      setisSubmitingLoader(false);
-      toast.error("Login Failed");
+    try {
+      setisSubmitingLoader(true);
+      const result = await postData("/login", { email: email, password: pass });
+      console.log("result", result);
+      if (result.success) {
+        localStorage.setItem("Etoken", result.data.token);
+        setisSubmitingLoader(false);
+        toast.success("Login Successfull");
+        router.push("/Dashboard");
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Login Failed");
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
   return (
