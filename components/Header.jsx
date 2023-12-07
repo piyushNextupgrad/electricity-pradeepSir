@@ -11,7 +11,9 @@ import {
   FaArrowRightToBracket,
 } from "react-icons/fa6";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 const Header = () => {
+  const router = useRouter();
   const [sidebarClass, setsidebarClass] = useState("sidenav-toggled");
   const [username, setusername] = useState("");
   const [email, setemail] = useState("");
@@ -34,6 +36,11 @@ const Header = () => {
     setusername(user);
     setemail(mail);
   }, []);
+
+  function logout() {
+    localStorage.clear();
+    router.push("/");
+  }
 
   return (
     <>
@@ -262,14 +269,14 @@ const Header = () => {
                   </div>
                   <img
                     className="avatar avatar-md brround"
-                    src="/1.jpg"
+                    src="/HD.png"
                     alt="image"
                   />
                 </a>
                 <div className="dropdown-menu dropdown-menu-right dropdown-menu-arrow w-250">
                   <div className="user-profile border-bottom p-3">
                     <div className="user-image">
-                      <img className="user-images" src="/1.jpg" alt="image" />
+                      <img className="user-images" src="/HD.png" alt="image" />
                     </div>
                     <div className="user-details">
                       <h4>{username}</h4>
@@ -289,10 +296,10 @@ const Header = () => {
                   <a href="#" className="dropdown-item pt-3 pb-3">
                     <FaCircleQuestion /> FAQ{" "}
                   </a>
-                  <a href="#" className="dropdown-item pt-3 pb-3">
+                  <span className="dropdown-item pt-3 pb-3" onClick={logout}>
                     <FaArrowRightToBracket />
                     Sign Out{" "}
-                  </a>
+                  </span>
                 </div>
               </div>
             </div>
