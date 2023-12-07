@@ -33,6 +33,9 @@ export default function Home() {
       console.log("result", result);
       if (result.success) {
         localStorage.setItem("Etoken", result.data.token);
+        localStorage.setItem("username", result.data.name.name);
+        localStorage.setItem("email", result.data.name.email);
+
         setisSubmitingLoader(false);
         toast.success("Login Successfull");
         setTimeout(() => {
