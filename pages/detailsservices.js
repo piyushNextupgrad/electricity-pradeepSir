@@ -5,13 +5,41 @@ import { MdPlumbing, MdElectricalServices } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
+import { postData } from "@/services/services";
+import { Toaster, toast } from "sonner";
+
 const detailsservices = () => {
   const router = useRouter();
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
+  const [serviceName, setServiceName] = useState("");
+  const [serviceDetail, setServiceDetail] = useState("");
 
   useEffect(() => {
     verifyIsLoggedIn(router);
   }, []);
+
+  async function saveService(event) {
+    event.preventDefault();
+    try {
+      setisSubmitingLoader(true);
+      const result = await postData("/StoreService", {
+        service_name: serviceName,
+        service_des: serviceDetail,
+      });
+      if (result.status) {
+        setisSubmitingLoader(false);
+        toast.success("Service Saved.");
+        setServiceName("");
+        setServiceDetail("");
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Service Not Saved.");
+      }
+    } catch (err) {
+      setisSubmitingLoader(false);
+      console.log(err);
+    }
+  }
   return (
     <>
       {isSubmitingLoader ? (
@@ -46,8 +74,8 @@ const detailsservices = () => {
               <div className="card">
                 <div className="card-body">
                   <div className="form-group m-0">
-                    <div className="row gutters-xs">
-                      <div className="col-3">
+                    <form className="row gutters-xs" onSubmit={saveService}>
+                      {/* <div className="col-3">
                         <input
                           type="search"
                           className="form-control header-search"
@@ -55,39 +83,45 @@ const detailsservices = () => {
                           aria-label="Search"
                           tabIndex={1}
                         />
-                      </div>
+                      </div> */}
                       <div className="col-3">
                         <input
                           type="text"
+                          value={serviceName}
                           className="form-control header-search"
-                          placeholder="Services Charge"
+                          placeholder="Service Name"
+                          required={true}
+                          onChange={(e) => setServiceName(e?.target?.value)}
                         />
                       </div>
                       <div className="col-2">
                         <input
                           type="text"
+                          value={serviceDetail}
                           className="form-control header-search"
-                          placeholder="Services Details"
+                          placeholder="Service Details"
+                          required={true}
+                          onChange={(e) => setServiceDetail(e?.target?.value)}
                         />
                       </div>
-                      <div className="col-2">
+                      {/* <div className="col-2">
                         <input
                           type="text"
                           className="form-control header-search"
                           placeholder="Services Time"
                         />
-                      </div>
+                      </div> */}
                       <div className="col-2">
                         <div className="text-end row searchsexction">
                           <button type="submit" className="btn btn-primary">
                             Submit
                           </button>
-                          <button type="submit" className="btn btn-danger">
+                          {/* <button type="submit" className="btn btn-danger">
                             Delete
-                          </button>
+                          </button> */}
                         </div>
                       </div>
-                    </div>
+                    </form>
                   </div>
                 </div>
               </div>

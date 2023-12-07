@@ -15,7 +15,6 @@ import { postData } from "@/services/services";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Toaster, toast } from "sonner";
-import { verifyIsLoggedIn } from "@/helper/helper";
 
 export default function Home() {
   const router = useRouter();
@@ -23,9 +22,7 @@ export default function Home() {
   const [pass, setPass] = useState("");
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
 
-  useEffect(() => {
-    verifyIsLoggedIn(router);
-  }, []);
+  useEffect(() => {}, []);
 
   //function to manage login form
   async function handleSubmit(event) {

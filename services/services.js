@@ -1,4 +1,4 @@
-export async function verifyData() {
+export async function verifyToken() {
   const token = localStorage.getItem("Etoken");
   try {
     const data = await fetch(process.env.SITE_URL + "verify", {
