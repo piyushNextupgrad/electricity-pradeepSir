@@ -5,7 +5,7 @@ import { MdPlumbing, MdElectricalServices } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
-import { postData } from "@/services/services";
+import { postData, getData } from "@/services/services";
 import { Toaster, toast } from "sonner";
 
 const detailsservices = () => {
@@ -13,11 +13,14 @@ const detailsservices = () => {
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
   const [serviceName, setServiceName] = useState("");
   const [serviceDetail, setServiceDetail] = useState("");
+  const [Services, setServices] = useState([]);
 
   useEffect(() => {
     verifyIsLoggedIn(router);
+    getServices();
   }, []);
 
+  //function to post service
   async function saveService(event) {
     event.preventDefault();
     try {
@@ -38,6 +41,14 @@ const detailsservices = () => {
     } catch (err) {
       setisSubmitingLoader(false);
       console.log(err);
+    }
+  }
+
+  //get services
+  async function getServices() {
+    const result = await getData("/GetService");
+    if (result.status) {
+      setServices(result.data);
     }
   }
   return (
@@ -128,26 +139,30 @@ const detailsservices = () => {
             </div>
           </div>
           <div className="row">
-            <div className="col-md-6 col-lg-3 features">
-              <div className="card">
-                <div className="card-body text-center">
-                  <div className="feature">
-                    <div className="fa-stack services bg-primary-transparent  fa-lg fa-1x  mb-3">
-                      <TbAirConditioningDisabled />
+            {Services?.map((item, index) => (
+              <div className="col-md-6 col-lg-3 features">
+                <div key={index} className="card">
+                  <div className="card-body text-center">
+                    <div className="feature">
+                      <div className="fa-stack services bg-primary-transparent  fa-lg fa-1x  mb-3">
+                        <TbAirConditioningDisabled />
+                      </div>
+                      <h3>{item.service_name}</h3>
+                      <p>{item.service_des}</p>
+                      <ul>
+                        <li>Suspendisse eleifend.</li>
+                        <li>Proin et dui imperdiet.</li>
+                        <li>Proin at magna posuere.</li>
+                        <li>Proin hendrerit magna.</li>
+                        <li>Donec consequat quam.</li>
+                      </ul>
                     </div>
-                    <h3>AC Repair</h3>
-                    <ul>
-                      <li>Suspendisse eleifend.</li>
-                      <li>Proin et dui imperdiet.</li>
-                      <li>Proin at magna posuere.</li>
-                      <li>Proin hendrerit magna.</li>
-                      <li>Donec consequat quam.</li>
-                    </ul>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 col-lg-3 features">
+            ))}
+
+            {/* <div className="col-md-6 col-lg-3 features">
               <div className="card">
                 <div className="card-body text-center">
                   <div className="feature">
@@ -165,8 +180,8 @@ const detailsservices = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 col-lg-3 features">
+            </div> */}
+            {/* <div className="col-md-6 col-lg-3 features">
               <div className="card">
                 <div className="card-body text-center">
                   <div className="feature">
@@ -184,8 +199,8 @@ const detailsservices = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 col-lg-3 features">
+            </div> */}
+            {/* <div className="col-md-6 col-lg-3 features">
               <div className="card">
                 <div className="card-body text-center">
                   <div className="feature">
@@ -203,8 +218,8 @@ const detailsservices = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-6 col-lg-3 features">
+            </div> */}
+            {/* <div className="col-md-6 col-lg-3 features">
               <div className="card">
                 <div className="card-body text-center">
                   <div className="feature">
@@ -355,7 +370,7 @@ const detailsservices = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
