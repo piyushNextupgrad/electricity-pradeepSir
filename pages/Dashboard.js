@@ -3,12 +3,21 @@ import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
 const Dashboard = () => {
   const router = useRouter();
+  const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
 
   useEffect(() => {
     verifyIsLoggedIn(router);
   }, []);
   return (
     <>
+      {isSubmitingLoader ? (
+        <div className="overlay">
+          <div className="spinner-container">
+            <img className="animatingSpinnerSvg" src="/spinner.svg" alt="" />
+          </div>
+        </div>
+      ) : null}
+      <Toaster position="top-center" richColors />
       <div className="app-content">
         <div className="side-app leftmenu-icon">
           <div className="page-header">
