@@ -38,7 +38,9 @@ export default function Home() {
         localStorage.setItem("Etoken", result.data.token);
         setisSubmitingLoader(false);
         toast.success("Login Successfull");
-        router.push("/Dashboard");
+        setTimeout(() => {
+          router.push("/Dashboard");
+        }, 1500);
       } else {
         setisSubmitingLoader(false);
         toast.error("Login Failed");
