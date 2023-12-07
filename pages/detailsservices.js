@@ -46,9 +46,19 @@ const detailsservices = () => {
 
   //get services
   async function getServices() {
-    const result = await getData("/GetService");
-    if (result.status) {
-      setServices(result.data);
+    try {
+      setisSubmitingLoader(true);
+      const result = await getData("/GetService");
+      if (result.status) {
+        setisSubmitingLoader(false);
+        setServices(result.data);
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Faied to load Services");
+      }
+    } catch (err) {
+      setisSubmitingLoader(false);
+      toast.error(err);
     }
   }
   return (
