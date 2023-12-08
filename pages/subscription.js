@@ -2,18 +2,43 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
-import { postData } from "@/services/services";
+import { postData, getData, deleteData } from "@/services/services";
 import { Toaster, toast } from "sonner";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 const Subscription = () => {
   const router = useRouter();
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
   const [serviceName, setserviceName] = useState("");
   const [serviceDescription, setserviceDescription] = useState("");
   const [amount, setamount] = useState("");
+  const [services, setservices] = useState([]);
+  const [subService, setsubService] = useState("");
+  const [subServiceDesc, setsubServiceDesc] = useState("");
+  const [subserviceAmount, setsubserviceAmount] = useState("");
+  //bootstrap modal states------
+  const [show, setShow] = useState(false);
+  const handleClose = () => {
+    settrackBtn("");
+    settrackId("");
+    setsubService("");
+    setsubServiceDesc("");
+    setsubserviceAmount("");
+    setShow(false);
+  };
+  const [trackBtn, settrackBtn] = useState("");
+  const [trackId, settrackId] = useState("");
+  const handleShow = (buttonText, id) => {
+    settrackId(id);
+    settrackBtn(buttonText);
+    setShow(true);
+  };
   useEffect(() => {
     verifyIsLoggedIn(router);
+    getPlans();
   }, []);
 
+  //function to post service
   async function handleServiceSave(event) {
     event.preventDefault();
     try {
@@ -25,6 +50,7 @@ const Subscription = () => {
           subscription_amt: amount,
         });
         if (result.status) {
+          getPlans();
           setisSubmitingLoader(false);
           toast.success("Subscription Added");
           setserviceDescription("");
@@ -40,6 +66,73 @@ const Subscription = () => {
       console.log(err);
     }
   }
+
+  //api to get the subscription data
+  async function getPlans() {
+    try {
+      const result = await getData("/GetSubscription");
+      if (result?.status) {
+        setservices(result?.data);
+      } else {
+        toast.error("Failed to get services.");
+      }
+    } catch (err) {
+      toast(err);
+    }
+  }
+
+  //function to delete service
+  async function deleteService() {
+    handleClose();
+
+    try {
+      setisSubmitingLoader(true);
+      const result = await deleteData("/DeleteSubscription", {
+        delId: trackId,
+      });
+      if (result.status) {
+        getPlans();
+        setisSubmitingLoader(false);
+        toast.success("Plan Deleted");
+
+        settrackId("");
+        settrackBtn("");
+      } else {
+        setisSubmitingLoader(false);
+        toast.success("Plan Not Deleted");
+      }
+    } catch (err) {
+      toast.error(err);
+    }
+  }
+
+  //function to save sub service
+  async function saveSubService() {
+    handleClose();
+    try {
+      setisSubmitingLoader(true);
+      const result = await postData("/StoreSubscriptionDetails", {
+        subsc_id: trackId,
+        subsc_list: subServiceDesc,
+        subsc_amt: subserviceAmount,
+      });
+      if (result.status) {
+        getPlans();
+        setisSubmitingLoader(false);
+        toast.success("Service Added in Plan");
+        settrackId("");
+        settrackBtn("");
+        setsubService("");
+        setsubServiceDesc("");
+        setsubserviceAmount("");
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Service not added");
+      }
+    } catch (err) {
+      toast.error(err);
+    }
+  }
   return (
     <>
       {isSubmitingLoader ? (
@@ -49,6 +142,83 @@ const Subscription = () => {
           </div>
         </div>
       ) : null}
+      <>
+        {trackBtn == "add" ? (
+          <>
+            <Modal show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Add Services to your plan</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <input
+                  value={subService}
+                  placeholder="Service Name"
+                  type="text"
+                  onChange={(e) => setsubService(e?.target?.value)}
+                />
+                <input
+                  value={subServiceDesc}
+                  placeholder="Service Description"
+                  type="text"
+                  onChange={(e) => setsubServiceDesc(e?.target?.value)}
+                />
+                <input
+                  value={subserviceAmount}
+                  placeholder="Service Description"
+                  type="number"
+                  onChange={(e) => setsubserviceAmount(e?.target?.value)}
+                />
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
+                  Close
+                </Button>
+                <Button variant="primary" onClick={saveSubService}>
+                  Save
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </>
+        ) : trackBtn == "update" ? (
+          <>
+            <Modal show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Update Modal</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Woohoo, you are reading this text in a modal!
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
+                  Close
+                </Button>
+                <Button variant="primary" onClick={handleClose}>
+                  Save Changes
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </>
+        ) : (
+          <>
+            <Modal show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Delete Plan</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                You are about to delete a plan , Are you sure!
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
+                  Close
+                </Button>
+                <Button variant="primary" onClick={deleteService}>
+                  Delete Plan
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </>
+        )}
+      </>
       <Toaster position="top-center" richColors />
       <div className="app-content">
         <div className="side-app leftmenu-icon">
@@ -101,47 +271,77 @@ const Subscription = () => {
             </div>
           </div>
           <div className="row">
-            <div className="col-md-4 col-xl-3 col-lg-4 col-sm-6">
-              <div className="pricingTable2 danger card">
-                <div className="pricingTable2-header">
-                  <h3>Premium</h3>
-                  <span>Lorem ipsum dolor</span>
-                </div>
-                <div className="pricing-plans">
-                  <span className="price-value1">
-                    <i className="fa fa-usd" />
-                    <span>19</span>
-                  </span>
-                  <span className="month">/month</span>
-                </div>
-                <div className="pricingContent2">
-                  <ul>
-                    <li>
-                      <b>3 Free </b> Domain Name
-                    </li>
-                    <li>
-                      <b>6</b> One-Click Apps
-                    </li>
-                    <li>
-                      <b>3</b> Databases
-                    </li>
-                    <li>
-                      <b>Money</b> BackGuarntee
-                    </li>
-                    <li>
-                      <b>24/7</b> Support
-                    </li>
-                  </ul>
-                </div>
+            {services.length > 0 ? (
+              <>
+                {services.map((item, index) =>
+                  item.subscription_status == "1" ? (
+                    <>
+                      <div
+                        key={index}
+                        className="col-md-4 col-xl-3 col-lg-4 col-sm-6"
+                      >
+                        <div className="pricingTable2 danger card">
+                          <div className="pricingTable2-header">
+                            <h3>{item?.subscription_name}</h3>
+                            <span>{item?.subscription_description}</span>
+                          </div>
+                          <div className="pricing-plans">
+                            <span className="price-value1">
+                              <i className="fa fa-usd" />
+                              <span>{item?.subscription_amt}</span>
+                            </span>
+                            <span className="month">/month</span>
+                          </div>
+                          {/* <div className="pricingContent2">
+                            <ul>
+                              <li>
+                                <b>3 Free </b> Domain Name
+                              </li>
+                              <li>
+                                <b>6</b> One-Click Apps
+                              </li>
+                              <li>
+                                <b>3</b> Databases
+                              </li>
+                              <li>
+                                <b>Money</b> BackGuarntee
+                              </li>
+                              <li>
+                                <b>24/7</b> Support
+                              </li>
+                            </ul>
+                          </div> */}
 
-                <div className="pricingTable2-sign-up">
-                  <a href="#" className="btn btn-block btn-danger">
-                    Edit
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-4 col-xl-3 col-lg-4 col-sm-6">
+                          <div className="pricingTable2-sign-up"></div>
+                          <Button
+                            className="my-1 mx-2"
+                            variant="primary"
+                            onClick={() => handleShow("add", item.id)}
+                          >
+                            Add Service
+                          </Button>
+                          <Button
+                            className="my-1 mx-2"
+                            variant="primary"
+                            onClick={() => handleShow("update", item.id)}
+                          >
+                            Update Plan
+                          </Button>
+                          <Button
+                            className="my-1 mx-2 mb-2"
+                            variant="primary"
+                            onClick={() => handleShow("delete", item.id)}
+                          >
+                            Delete Plan
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  ) : null
+                )}
+              </>
+            ) : null}
+            {/* <div className="col-md-4 col-xl-3 col-lg-4 col-sm-6">
               <div className="pricingTable2 green card">
                 <div className="pricingTable2-header">
                   <h3>Silver</h3>
@@ -260,7 +460,7 @@ const Subscription = () => {
                   </a>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="row">
             <div className="col-xl-12 col-lg-12 col-md-12">

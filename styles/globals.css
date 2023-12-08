@@ -23598,3 +23598,6 @@ a.actionsubmit:hover {
   -webkit-font-smoothing: antialiased;
   margin-right: 4px;
 }
+.star {
+  color: #feb800;
+}
