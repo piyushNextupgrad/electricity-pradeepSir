@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
 import { postData, getData } from "@/services/services";
 import { Toaster, toast } from "sonner";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 
 const detailsservices = () => {
   const router = useRouter();
@@ -14,10 +16,13 @@ const detailsservices = () => {
   const [serviceName, setServiceName] = useState("");
   const [serviceDetail, setServiceDetail] = useState("");
   const [Services, setServices] = useState([]);
+  const [locations, setlocations] = useState([]);
+  const [selectedLocations, setSelectedLocations] = useState([]);
 
   useEffect(() => {
     verifyIsLoggedIn(router);
     getServices();
+    getLocation();
   }, []);
 
   //function to post service
@@ -61,6 +66,39 @@ const detailsservices = () => {
       toast.error(err);
     }
   }
+  //function to get locations
+  async function getLocation() {
+    try {
+      const result = await getData("/GetServiceLocation");
+      if (result.status) {
+        console.log("==>", result);
+        setlocations(result.data);
+      } else {
+        toast.error("Failed to get Locations");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleLocationChange = (location) => {
+    const isSelected = selectedLocations.includes(location);
+
+    if (isSelected) {
+      setSelectedLocations((prevSelected) =>
+        prevSelected.filter((selected) => selected !== location)
+      );
+    } else {
+      setSelectedLocations((prevSelected) => [...prevSelected, location]);
+    }
+  };
+
+  const handleLocationSubmit = (e) => {
+    e?.preventDefault();
+    // Add your form submission logic here using selectedLocations
+    console.log(selectedLocations);
+  };
+
   return (
     <>
       {isSubmitingLoader ? (
@@ -137,12 +175,31 @@ const detailsservices = () => {
                           <button type="submit" className="btn btn-primary">
                             Submit
                           </button>
+
                           {/* <button type="submit" className="btn btn-danger">
                             Delete
                           </button> */}
                         </div>
                       </div>
                     </form>
+                    {locations.length > 0 ? (
+                      <Form onSubmit={handleLocationSubmit}>
+                        {locations.map((location, index) => (
+                          <Form.Check
+                            key={index}
+                            type="checkbox"
+                            id={`locationCheckbox-${location.id}`}
+                            label={location.location_name}
+                            checked={selectedLocations.includes(location)}
+                            onChange={() => handleLocationChange(location)}
+                          />
+                        ))}
+
+                        <Button variant="primary" type="submit">
+                          Submit
+                        </Button>
+                      </Form>
+                    ) : null}
                   </div>
                 </div>
               </div>

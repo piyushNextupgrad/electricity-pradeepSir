@@ -23,13 +23,13 @@ const Sidebar = () => {
   return (
     <>
       <aside className="app-sidebar ps ps--active-y">
-        <div className="app-sidebar__user">
+        {/* <div className="app-sidebar__user">
           <div className="dropdown user-pro-body text-center">
             <div className="user-pic">
               <img
                 src="/HD.png"
                 alt="user-img"
-                className="avatar-xl rounded-circle mb-1"
+                className="avatar-lg rounded-circle mb-1"
               />
             </div>
             <div className="user-info">
@@ -39,7 +39,7 @@ const Sidebar = () => {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
         <ul className="side-menu">
           <li className="slide is-expanded">
             <Link
@@ -94,7 +94,7 @@ const Sidebar = () => {
           <li>
             <Link className="side-menu__item" href="/detailsservices">
               <FaRectangleList />
-              <span className="side-menu__label">Details of Services</span>
+              <span className="side-menu__label">Services</span>
             </Link>
           </li>
           <li className="slide">
@@ -111,6 +111,16 @@ const Sidebar = () => {
             <Link className="side-menu__item" data-toggle="slide" href="/Role">
               <FaBookBookmark />
               <span className="side-menu__label">Role</span>
+            </Link>
+          </li>
+          <li className="slide">
+            <Link
+              className="side-menu__item"
+              data-toggle="slide"
+              href="/Locations"
+            >
+              <FaTicket />
+              <span className="side-menu__label">Locations</span>
             </Link>
           </li>
           <li className="slide">
