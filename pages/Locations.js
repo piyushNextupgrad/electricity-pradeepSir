@@ -15,6 +15,9 @@ const Location = () => {
   });
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
   const [locations, setlocations] = useState([]);
+  const [subServiceName, setsubServiceName] = useState("");
+  const [subServiceAmt, setsubServiceAmt] = useState("");
+  const [subService, setsubService] = useState([]);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -28,6 +31,7 @@ const Location = () => {
 
   useEffect(() => {
     getLocation();
+    getSubService();
   }, []);
   //function to post location
   const handleSubmit = async (event) => {
@@ -59,10 +63,49 @@ const Location = () => {
     try {
       const result = await getData("/GetServiceLocation");
       if (result.status) {
-        console.log("==>", result);
+        // console.log("==>", result);
         setlocations(result.data);
       } else {
         toast.error("Failed to get Locations");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  //function to post sub-service
+  async function postSubService(e) {
+    e.preventDefault();
+    try {
+      setisSubmitingLoader(true);
+      const result = await postData("/StoreSubscriptionDetails", {
+        subsc_list: subServiceName,
+        subsc_amt: subServiceAmt,
+      });
+      // console.log("==>", result);
+      if (result.status) {
+        setisSubmitingLoader(false);
+        getSubService();
+        toast.success("Service Saved");
+        setsubServiceName("");
+        setsubServiceAmt("");
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Service not saved");
+      }
+    } catch (err) {
+      setisSubmitingLoader(false);
+      toast.error(err);
+    }
+  }
+  //function to get sub-service
+  async function getSubService() {
+    try {
+      const result = await getData("/GetSubscriptionDetails");
+      if (result.status) {
+        console.log("==>", result);
+        setsubService(result.data);
+      } else {
+        toast.error("Failed to get Sub-services");
       }
     } catch (err) {
       console.log(err);
@@ -88,7 +131,7 @@ const Location = () => {
                   <Link href="/Dashboard">Home</Link>
                 </li>
                 <li className="breadcrumb-item active" aria-current="page">
-                  Locations
+                  Locations - Sub Service
                 </li>
               </ol>
             </div>
@@ -133,7 +176,7 @@ const Location = () => {
             <Form.Group className="mb-3" controlId="formBasicCheckbox">
               <Form.Check
                 type="checkbox"
-                label="Check me out"
+                label="Active"
                 name="checkMeOut"
                 checked={formData.checkMeOut}
                 onChange={handleChange}
@@ -141,7 +184,7 @@ const Location = () => {
             </Form.Group>
 
             <Button variant="primary" type="submit">
-              Submit
+              Save
             </Button>
           </Form>
         </div>
@@ -162,6 +205,106 @@ const Location = () => {
                       <td>{item.zip_code}</td>
                       <td>
                         {item.location_status === "1" ? (
+                          <>
+                            <span className="status-icon bg-success" />
+                            Active
+                          </>
+                        ) : (
+                          <>
+                            <span className="status-icon bg-warning" />
+                            Inactive
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                : null}
+            </tbody>
+          </table>
+        </div>
+        <div className="side-app leftmenu-icon">
+          <div className="page-header">
+            <div className="page-leftheader">
+              <h4 className="page-title">Service Descriptions</h4>
+              <ol className="breadcrumb pl-0">
+                <li className="breadcrumb-item">
+                  <Link href="/Dashboard">Home</Link>
+                </li>
+                <li className="breadcrumb-item active" aria-current="page">
+                  Locations -Sub Service
+                </li>
+              </ol>
+            </div>
+            <div className="page-rightheader">
+              <div className="ml-3 ml-auto d-flex">&nbsp;</div>
+            </div>
+          </div>
+          {/*custom form piyush start */}
+          <Form onSubmit={postSubService}>
+            <Form.Group className="mb-3" controlId="formLocationName">
+              <Form.Label>Sub-Service Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter Subservice Name"
+                name="locationName"
+                value={subServiceName}
+                onChange={(e) => setsubServiceName(e?.target?.value)}
+                required
+              />
+              <Form.Text className="text-muted">
+                Please enter the sub-service name.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formLocationZip">
+              <Form.Label>Sub-service Price</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter Sub-service Amount "
+                name="locationZip"
+                value={subServiceAmt}
+                onChange={(e) => setsubServiceAmt(e?.target?.value)}
+                // pattern="[0-9]{6}" // Assuming a 5-digit zip code
+                title="Please enter a valid 6-digit zip code."
+                required
+              />
+              <Form.Text className="text-muted">
+                Please enter a valid amount.
+              </Form.Text>
+            </Form.Group>
+
+            {/* <Form.Group className="mb-3" controlId="formBasicCheckbox">
+              <Form.Check
+                type="checkbox"
+                label="Active"
+                name="checkMeOut"
+                checked={activeSubService}
+                onChange={(e) => setactiveSubService(e?.target?.value)}
+              />
+            </Form.Group> */}
+
+            <Button variant="primary" type="submit">
+              Save
+            </Button>
+          </Form>
+        </div>
+        <div className="table-responsive">
+          <table className="table card-table table-bordered table-vcenter text-nowrap table-primary my-4 mx-4">
+            <thead className="bg-primary text-white">
+              <tr>
+                <th className="text-white">Service Name</th>
+                <th className="text-white">Price</th>
+                <th className="text-white">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subService.length > 0
+                ? subService.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.subsc_list}</td>
+                      <td>{item.subsc_amt}</td>
+                      <td>
+                        {item.subsc_status === "1" ? (
                           <>
                             <span className="status-icon bg-success" />
                             Active

@@ -18,34 +18,50 @@ const detailsservices = () => {
   const [Services, setServices] = useState([]);
   const [locations, setlocations] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
+  const [SubServices, setSubServices] = useState([]);
+  const [selectedSubServices, setselectedSubServices] = useState([]);
 
   useEffect(() => {
     verifyIsLoggedIn(router);
     getServices();
     getLocation();
+    getSubService();
   }, []);
 
   //function to post service
   async function saveService(event) {
     event.preventDefault();
-    try {
-      setisSubmitingLoader(true);
-      const result = await postData("/StoreService", {
-        service_name: serviceName,
-        service_des: serviceDetail,
-      });
-      if (result.status) {
+    if (selectedLocations.length > 0 && selectedSubServices.length > 0) {
+      try {
+        setisSubmitingLoader(true);
+        const result = await postData("/StoreService", {
+          service_name: serviceName,
+          service_des: serviceDetail,
+          service_des_id: selectedSubServices,
+          location: selectedLocations,
+        });
+        console.log("===>", {
+          service_name: serviceName,
+          service_des: serviceDetail,
+          service_des_id: selectedSubServices,
+          location: selectedLocations,
+        });
+        if (result.status) {
+          setisSubmitingLoader(false);
+          toast.success("Service Saved.");
+          setServiceName("");
+          setServiceDetail("");
+          getServices();
+        } else {
+          setisSubmitingLoader(false);
+          toast.error("Service Not Saved.");
+        }
+      } catch (err) {
         setisSubmitingLoader(false);
-        toast.success("Service Saved.");
-        setServiceName("");
-        setServiceDetail("");
-      } else {
-        setisSubmitingLoader(false);
-        toast.error("Service Not Saved.");
+        console.log(err);
       }
-    } catch (err) {
-      setisSubmitingLoader(false);
-      console.log(err);
+    } else {
+      toast.warning("Please select a location and Service");
     }
   }
 
@@ -72,7 +88,13 @@ const detailsservices = () => {
       const result = await getData("/GetServiceLocation");
       if (result.status) {
         console.log("==>", result);
-        setlocations(result.data);
+        const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+        const sortedList = [...result.data].sort((a, b) =>
+          collator.compare(a.location_name, b.location_name)
+        );
+
+        // Assuming setSubServices is a state update function
+        setlocations(sortedList);
       } else {
         toast.error("Failed to get Locations");
       }
@@ -92,12 +114,47 @@ const detailsservices = () => {
       setSelectedLocations((prevSelected) => [...prevSelected, location]);
     }
   };
+  const handleSubServiceChange = (service) => {
+    const isSelected = selectedSubServices.includes(service);
+
+    if (isSelected) {
+      setselectedSubServices((prevSelected) =>
+        prevSelected.filter((selected) => selected !== service)
+      );
+    } else {
+      setselectedSubServices((prevSelected) => [...prevSelected, service]);
+    }
+  };
 
   const handleLocationSubmit = (e) => {
     e?.preventDefault();
     // Add your form submission logic here using selectedLocations
     console.log(selectedLocations);
   };
+  const handleSubserviceSubmit = (e) => {
+    e?.preventDefault();
+    // Add your form submission logic here using selectedLocations
+    console.log(selectedSubServices);
+  };
+  async function getSubService() {
+    try {
+      const result = await getData("/GetSubscriptionDetails");
+      if (result.status) {
+        // console.log("==>", result);
+        const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+        const sortedList = [...result.data].sort((a, b) =>
+          collator.compare(a.subsc_list, b.subsc_list)
+        );
+
+        // Assuming setSubServices is a state update function
+        setSubServices(sortedList);
+      } else {
+        toast.error("Failed to get Sub-services");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <>
@@ -182,24 +239,58 @@ const detailsservices = () => {
                         </div>
                       </div>
                     </form>
-                    {locations.length > 0 ? (
-                      <Form onSubmit={handleLocationSubmit}>
-                        {locations.map((location, index) => (
-                          <Form.Check
-                            key={index}
-                            type="checkbox"
-                            id={`locationCheckbox-${location.id}`}
-                            label={location.location_name}
-                            checked={selectedLocations.includes(location)}
-                            onChange={() => handleLocationChange(location)}
-                          />
-                        ))}
+                    <div className="parent_Loc_Service">
+                      <div className="sec1">
+                        <h4>Locations</h4>
+                        {locations.length > 0 ? (
+                          <Form
+                            className="locationsList"
+                            onSubmit={handleLocationSubmit}
+                          >
+                            {locations.map((location, index) => (
+                              <Form.Check
+                                key={index}
+                                type="checkbox"
+                                id={`locationCheckbox-${location.id}`}
+                                label={location.location_name}
+                                checked={selectedLocations.includes(location)}
+                                onChange={() => handleLocationChange(location)}
+                              />
+                            ))}
 
-                        <Button variant="primary" type="submit">
-                          Submit
-                        </Button>
-                      </Form>
-                    ) : null}
+                            {/* <Button variant="primary" type="submit">
+                              Submit
+                            </Button> */}
+                          </Form>
+                        ) : null}
+                      </div>
+                      <div className="sec2">
+                        <h4>Service Details</h4>
+                        {SubServices.length > 0 ? (
+                          <Form
+                            className="locationsList"
+                            onSubmit={handleSubserviceSubmit}
+                          >
+                            {SubServices.map((location, index) => (
+                              <Form.Check
+                                key={index}
+                                type="checkbox"
+                                id={`locationCheckbox-${location.id}`}
+                                label={location.subsc_list}
+                                checked={selectedSubServices.includes(location)}
+                                onChange={() =>
+                                  handleSubServiceChange(location)
+                                }
+                              />
+                            ))}
+
+                            {/* <Button variant="primary" type="submit">
+                              Submit
+                            </Button> */}
+                          </Form>
+                        ) : null}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
