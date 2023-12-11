@@ -5,7 +5,11 @@ import { postData, getData, deleteData } from "@/services/services";
 import { Toaster, toast } from "sonner";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import { FaEdit } from "react-icons/fa";
+import { AiFillDelete } from "react-icons/ai";
 import Link from "next/link";
+
+import Modal from "react-bootstrap/Modal";
 
 const Location = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +22,16 @@ const Location = () => {
   const [subServiceName, setsubServiceName] = useState("");
   const [subServiceAmt, setsubServiceAmt] = useState("");
   const [subService, setsubService] = useState([]);
+  const [show, setShow] = useState(false);
+
+  //update location states
+
+  const [locationUpdate, setlocationUpdate] = useState("");
+  const [zipUpdate, setzipUpdate] = useState("");
+  const [activeUpdate, setactiveUpdate] = useState("");
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -102,7 +116,7 @@ const Location = () => {
     try {
       const result = await getData("/GetSubscriptionDetails");
       if (result.status) {
-        console.log("==>", result);
+        // console.log("==>", result);
         setsubService(result.data);
       } else {
         toast.error("Failed to get Sub-services");
@@ -110,6 +124,59 @@ const Location = () => {
     } catch (err) {
       console.log(err);
     }
+  }
+
+  //function to delete a location record
+  async function deleteLocation(id) {
+    try {
+      setisSubmitingLoader(true);
+      const result = await deleteData("/DeleteServiceLocation", { delId: id });
+      if (result.status) {
+        toast.success("Location Deleted");
+        getLocation();
+        setisSubmitingLoader(false);
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Location not deleted");
+      }
+    } catch (err) {
+      setisSubmitingLoader(false);
+      toast.error(err);
+    }
+  }
+  //function to delete a service record
+  async function deleteService(id) {
+    try {
+      setisSubmitingLoader(true);
+      const result = await deleteData("/DeleteSubscriptionDetails", {
+        delId: id,
+      });
+      if (result.status) {
+        toast.success("Service Deleted");
+        getSubService();
+        setisSubmitingLoader(false);
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Service not deleted");
+      }
+    } catch (err) {
+      setisSubmitingLoader(false);
+      toast.error(err);
+    }
+  }
+  //function to toggle Location Modal
+  async function toggleLocationRecord(id) {
+    const recordData = locations.filter((item) => item.id === id);
+    // console.log("recordData", recordData);
+
+    setlocationUpdate(recordData[0]?.location_name);
+    setzipUpdate(recordData[0]?.zip_code);
+    setactiveUpdate(recordData[0]?.location_status === "1" ? 1 : 0);
+    setShow(true);
+  }
+  //function to update location record
+  async function updateLocationSingleRecord(event) {
+    event.preventDefault();
   }
   return (
     <>
@@ -120,6 +187,56 @@ const Location = () => {
           </div>
         </div>
       ) : null}
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Location Update</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form
+            className="locationUpdateForm"
+            onSubmit={updateLocationSingleRecord}
+          >
+            <label>
+              Location:
+              <input
+                className="full-width-input"
+                value={locationUpdate}
+                type="text"
+                required
+                onChange={(e) => setlocationUpdate(e.target.value)}
+              />
+            </label>
+            <label>
+              Zip Code:
+              <input
+                className="full-width-input"
+                value={zipUpdate}
+                type="text"
+                placeholder="Enter Zip Code"
+                pattern="[0-9]{6}"
+                required
+                onChange={(e) => setzipUpdate(e.target.value)}
+              />
+            </label>
+            <label>
+              Active:
+              <input
+                checked={activeUpdate}
+                type="checkbox"
+                required
+                onChange={(e) => setactiveUpdate(e.target.checked)}
+              />
+            </label>
+            <button type="submit">Update</button>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Toaster position="top-center" richColors />
       <div className="app-content">
         <div className="side-app leftmenu-icon">
@@ -192,18 +309,19 @@ const Location = () => {
           <table className="table card-table table-bordered table-vcenter text-nowrap table-primary my-4 mx-4">
             <thead className="bg-primary text-white">
               <tr>
-                <th className="text-white">Location Name</th>
-                <th className="text-white">Location Zip</th>
-                <th className="text-white">Status</th>
+                <th className="text-white actionTable">Location Name</th>
+                <th className="text-white actionTable">Location Zip</th>
+                <th className="text-white actionTable">Status</th>
+                <th className="text-white actionTable">Action</th>
               </tr>
             </thead>
             <tbody>
               {locations.length > 0
                 ? locations.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.location_name}</td>
-                      <td>{item.zip_code}</td>
-                      <td>
+                      <td className="actionTable">{item.location_name}</td>
+                      <td className="actionTable">{item.zip_code}</td>
+                      <td className="actionTable">
                         {item.location_status === "1" ? (
                           <>
                             <span className="status-icon bg-success" />
@@ -215,6 +333,16 @@ const Location = () => {
                             Inactive
                           </>
                         )}
+                      </td>
+                      <td className="actionTable">
+                        <span className="actionInner">
+                          <span onClick={() => toggleLocationRecord(item.id)}>
+                            <FaEdit className="tableIcons" />
+                          </span>
+                          <span onClick={() => deleteLocation(item.id)}>
+                            <AiFillDelete className="tableIcons" />
+                          </span>
+                        </span>
                       </td>
                     </tr>
                   ))
@@ -292,18 +420,19 @@ const Location = () => {
           <table className="table card-table table-bordered table-vcenter text-nowrap table-primary my-4 mx-4">
             <thead className="bg-primary text-white">
               <tr>
-                <th className="text-white">Service Name</th>
-                <th className="text-white">Price</th>
-                <th className="text-white">Status</th>
+                <th className="text-white actionTable">Service Name</th>
+                <th className="text-white actionTable">Price</th>
+                <th className="text-white actionTable">Status</th>
+                <th className="text-white actionTable">Action</th>
               </tr>
             </thead>
             <tbody>
               {subService.length > 0
                 ? subService.map((item, index) => (
                     <tr key={index}>
-                      <td>{item.subsc_list}</td>
-                      <td>{item.subsc_amt}</td>
-                      <td>
+                      <td className="actionTable">{item.subsc_list}</td>
+                      <td className="actionTable">{item.subsc_amt}</td>
+                      <td className="actionTable">
                         {item.subsc_status === "1" ? (
                           <>
                             <span className="status-icon bg-success" />
@@ -315,6 +444,16 @@ const Location = () => {
                             Inactive
                           </>
                         )}
+                      </td>
+                      <td className="actionTable">
+                        <span className="actionInner">
+                          <span>
+                            <FaEdit className="tableIcons" />
+                          </span>
+                          <span onClick={() => deleteService(item.id)}>
+                            <AiFillDelete className="tableIcons" />
+                          </span>
+                        </span>
                       </td>
                     </tr>
                   ))

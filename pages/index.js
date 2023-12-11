@@ -22,7 +22,12 @@ export default function Home() {
   const [pass, setPass] = useState("");
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const token = localStorage.getItem("Etoken");
+    if (token) {
+      router.push("/Dashboard");
+    }
+  }, []);
 
   //function to manage login form
   async function handleSubmit(event) {
