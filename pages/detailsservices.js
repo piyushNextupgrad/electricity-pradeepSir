@@ -33,12 +33,21 @@ const detailsservices = () => {
     event.preventDefault();
     if (selectedLocations.length > 0 && selectedSubServices.length > 0) {
       try {
+        const arrayOfLocationID = [];
+        const arrayofSubServiceID = [];
+        selectedLocations.forEach((item) => arrayOfLocationID.push(item.id));
+        selectedSubServices.forEach((item) =>
+          arrayofSubServiceID.push(item.id)
+        );
+        // console.log("arrayofLocationId", arrayOfLocationID);
+        // console.log("arrayofSubServiceId", arrayofSubServiceID);
+
         setisSubmitingLoader(true);
         const result = await postData("/StoreService", {
           service_name: serviceName,
           service_des: serviceDetail,
-          service_des_id: selectedSubServices,
-          location: selectedLocations,
+          service_des_id: arrayofSubServiceID,
+          location: arrayOfLocationID,
         });
         // console.log("===>", result);
         if (result.status) {
