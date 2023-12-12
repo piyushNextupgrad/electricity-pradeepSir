@@ -3646,3 +3646,11 @@ input[type="button"].btn-block {
   flex-direction: column;
   gap: 1rem;
 }
+.lableWidth {
+  display: block;
+  width: 100%;
+}
+.full-width-input {
+  width: 80%;
+  margin-left: 10px;
+}

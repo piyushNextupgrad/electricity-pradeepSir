@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyIsLoggedIn, getFormatedDate } from "@/helper/helper";
-import { postData, getData, deleteData } from "@/services/services";
+import { postData, getData, deleteData, putData } from "@/services/services";
 import { Toaster, toast } from "sonner";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -25,7 +25,7 @@ const Location = () => {
   const [show, setShow] = useState(false);
 
   //update location states
-
+  const [updateid, setupdateid] = useState("");
   const [locationUpdate, setlocationUpdate] = useState("");
   const [zipUpdate, setzipUpdate] = useState("");
   const [activeUpdate, setactiveUpdate] = useState("");
@@ -77,7 +77,7 @@ const Location = () => {
     try {
       const result = await getData("/GetServiceLocation");
       if (result.status) {
-        // console.log("==>", result);
+        console.log("==>", result);
         setlocations(result.data);
       } else {
         toast.error("Failed to get Locations");
@@ -168,7 +168,7 @@ const Location = () => {
   async function toggleLocationRecord(id) {
     const recordData = locations.filter((item) => item.id === id);
     // console.log("recordData", recordData);
-
+    setupdateid(id);
     setlocationUpdate(recordData[0]?.location_name);
     setzipUpdate(recordData[0]?.zip_code);
     setactiveUpdate(recordData[0]?.location_status === "1" ? 1 : 0);
@@ -177,6 +177,22 @@ const Location = () => {
   //function to update location record
   async function updateLocationSingleRecord(event) {
     event.preventDefault();
+    try {
+      handleClose();
+      setisSubmitingLoader(true);
+      const result = await putData("/UpdateServiceLocation", {
+        updId: updateid,
+        location_name: locationUpdate,
+        location_status: activeUpdate == true ? "1" : "0",
+        zip_code: zipUpdate,
+      });
+
+      setisSubmitingLoader(false);
+      getLocation();
+    } catch (err) {
+      setisSubmitingLoader(false);
+      toast.error(err);
+    }
   }
   return (
     <>
@@ -196,14 +212,14 @@ const Location = () => {
             className="locationUpdateForm"
             onSubmit={updateLocationSingleRecord}
           >
-            <label>
+            <label className="lableWidth">
               Location:
               <input
                 className="full-width-input"
                 value={locationUpdate}
                 type="text"
                 required
-                onChange={(e) => setlocationUpdate(e.target.value)}
+                onChange={(e) => setlocationUpdate(e?.target?.value)}
               />
             </label>
             <label>
@@ -215,16 +231,16 @@ const Location = () => {
                 placeholder="Enter Zip Code"
                 pattern="[0-9]{6}"
                 required
-                onChange={(e) => setzipUpdate(e.target.value)}
+                onChange={(e) => setzipUpdate(e?.target?.value)}
               />
             </label>
             <label>
               Active:
               <input
+                className="full-width-input"
                 checked={activeUpdate}
                 type="checkbox"
-                required
-                onChange={(e) => setactiveUpdate(e.target.checked)}
+                onChange={(e) => setactiveUpdate(e?.target?.checked)}
               />
             </label>
             <button type="submit">Update</button>
@@ -322,7 +338,7 @@ const Location = () => {
                       <td className="actionTable">{item.location_name}</td>
                       <td className="actionTable">{item.zip_code}</td>
                       <td className="actionTable">
-                        {item.location_status === "1" ? (
+                        {item.location_status == "1" ? (
                           <>
                             <span className="status-icon bg-success" />
                             Active
