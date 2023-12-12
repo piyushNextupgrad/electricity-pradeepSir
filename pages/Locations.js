@@ -33,6 +33,16 @@ const Location = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  //states for second model - sub service
+  const [showNew, setShowNew] = useState(false);
+  const [newServiceName, setnewServiceName] = useState("");
+  const [newAmount, setnewAmount] = useState("");
+  const [newStatus, setnewStatus] = useState("");
+  const [newid, setnewid] = useState("");
+
+  const handleOpenNew = () => setShowNew(true);
+  const handleCloseNew = () => setShowNew(false);
+
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
     const inputValue = type === "checkbox" ? checked : value;
@@ -174,6 +184,17 @@ const Location = () => {
     setactiveUpdate(recordData[0]?.location_status === "1" ? 1 : 0);
     setShow(true);
   }
+
+  //function to toggle Service Model
+  async function toggleServiceRecord(id) {
+    const recordData = subService.filter((item) => item.id === id);
+    console.log("subService", recordData);
+    setnewid(id);
+    setnewServiceName(recordData[0]?.subsc_list);
+    setnewAmount(recordData[0]?.subsc_amt);
+    setnewStatus(recordData[0]?.subsc_status === "1" ? 1 : 0);
+    setShowNew(true);
+  }
   //function to update location record
   async function updateLocationSingleRecord(event) {
     event.preventDefault();
@@ -187,8 +208,41 @@ const Location = () => {
         zip_code: zipUpdate,
       });
 
+      if (result.status) {
+        setisSubmitingLoader(false);
+        toast.success("Record Updated");
+        getLocation();
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Record Not Updated");
+      }
+    } catch (err) {
       setisSubmitingLoader(false);
-      getLocation();
+      toast.error(err);
+    }
+  }
+  //update sub Service function
+  async function updateSubService(event) {
+    event.preventDefault();
+    try {
+      handleClose();
+      setisSubmitingLoader(true);
+      const result = await putData("/UpdateSubscriptionDetails", {
+        updId: newid,
+        subsc_list: newServiceName,
+        subsc_status: newStatus == true ? "1" : "0",
+        subsc_amt: newAmount,
+      });
+
+      if (result.status) {
+        setisSubmitingLoader(false);
+        toast.success("Record Updated");
+        getSubService();
+        setShowNew(false);
+      } else {
+        setisSubmitingLoader(false);
+        toast.error("Record Not Updated");
+      }
     } catch (err) {
       setisSubmitingLoader(false);
       toast.error(err);
@@ -248,6 +302,51 @@ const Location = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={showNew} onHide={handleCloseNew}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Service</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form className="locationUpdateForm" onSubmit={updateSubService}>
+            <label className="lableWidth">
+              Service Name:
+              <input
+                className="full-width-input"
+                value={newServiceName}
+                type="text"
+                required
+                onChange={(e) => setnewServiceName(e?.target?.value)}
+              />
+            </label>
+            <label>
+              Service Price:
+              <input
+                className="full-width-input"
+                value={newAmount}
+                type="number"
+                placeholder="Enter Amount"
+                required
+                onChange={(e) => setnewAmount(e?.target?.value)}
+              />
+            </label>
+            <label>
+              Active:
+              <input
+                className="full-width-input"
+                checked={newStatus}
+                type="checkbox"
+                onChange={(e) => setnewStatus(e?.target?.checked)}
+              />
+            </label>
+            <button type="submit">Update</button>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseNew}>
             Close
           </Button>
         </Modal.Footer>
@@ -464,7 +563,10 @@ const Location = () => {
                       <td className="actionTable">
                         <span className="actionInner">
                           <span>
-                            <FaEdit className="tableIcons" />
+                            <FaEdit
+                              className="tableIcons"
+                              onClick={(e) => toggleServiceRecord(item.id)}
+                            />
                           </span>
                           <span onClick={() => deleteService(item.id)}>
                             <AiFillDelete className="tableIcons" />

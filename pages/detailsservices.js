@@ -40,17 +40,16 @@ const detailsservices = () => {
           service_des_id: selectedSubServices,
           location: selectedLocations,
         });
-        console.log("===>", {
-          service_name: serviceName,
-          service_des: serviceDetail,
-          service_des_id: selectedSubServices,
-          location: selectedLocations,
-        });
+        // console.log("===>", result);
         if (result.status) {
           setisSubmitingLoader(false);
-          toast.success("Service Saved.");
+
           setServiceName("");
           setServiceDetail("");
+
+          setselectedSubServices([]);
+          setSelectedLocations([]);
+          toast.success("Service Saved.");
           getServices();
         } else {
           setisSubmitingLoader(false);
@@ -71,6 +70,7 @@ const detailsservices = () => {
       setisSubmitingLoader(true);
       const result = await getData("/GetService");
       if (result.status) {
+        console.log("===>", result);
         setisSubmitingLoader(false);
         setServices(result.data);
       } else {
@@ -297,28 +297,38 @@ const detailsservices = () => {
             </div>
           </div>
           <div className="row">
-            {Services?.map((item, index) => (
-              <div className="col-md-6 col-lg-3 features">
-                <div key={index} className="card">
-                  <div className="card-body text-center">
-                    <div className="feature">
-                      <div className="fa-stack services bg-primary-transparent  fa-lg fa-1x  mb-3">
-                        <TbAirConditioningDisabled />
+            {Services.length > 0 ? (
+              <>
+                {Services?.map((item, index) => (
+                  <div key={index} className="col-md-6 col-lg-3 features">
+                    <div className="card">
+                      <div className="card-body text-center">
+                        <div className="feature">
+                          <div className="fa-stack services bg-primary-transparent  fa-lg fa-1x  mb-3">
+                            <TbAirConditioningDisabled />
+                          </div>
+                          <h3>{item.service_name}</h3>
+                          <p>{item.service_des}</p>
+                          <ul>
+                            <li>Suspendisse eleifend.</li>
+                            <li>Proin et dui imperdiet.</li>
+                            <li>Proin at magna posuere.</li>
+                            <li>Proin hendrerit magna.</li>
+                            <li>Donec consequat quam.</li>
+                          </ul>
+                        </div>
                       </div>
-                      <h3>{item.service_name}</h3>
-                      <p>{item.service_des}</p>
-                      <ul>
-                        <li>Suspendisse eleifend.</li>
-                        <li>Proin et dui imperdiet.</li>
-                        <li>Proin at magna posuere.</li>
-                        <li>Proin hendrerit magna.</li>
-                        <li>Donec consequat quam.</li>
-                      </ul>
                     </div>
                   </div>
+                ))}
+              </>
+            ) : (
+              <>
+                <div className="noServiceMsg">
+                  No services to show. Please create one.
                 </div>
-              </div>
-            ))}
+              </>
+            )}
 
             {/* <div className="col-md-6 col-lg-3 features">
               <div className="card">

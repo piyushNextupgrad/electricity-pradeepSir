@@ -3626,7 +3626,7 @@ input[type="button"].btn-block {
   -ms-flex-pack: center;
   justify-content: center;
 }
-/* css piyush */
+/*--------------- css piyush ---------------*/
 .actionTable {
   text-align: center;
 }
@@ -3653,4 +3653,11 @@ input[type="button"].btn-block {
 .full-width-input {
   width: 80%;
   margin-left: 10px;
+}
+.noServiceMsg {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
