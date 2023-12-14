@@ -31,7 +31,7 @@ const detailsservices = () => {
   //function to post service
   async function saveService(event) {
     event.preventDefault();
-    if (selectedLocations.length > 0 && selectedSubServices.length > 0) {
+    if (selectedSubServices.length > 0) {
       try {
         const arrayOfLocationID = [];
         const arrayofSubServiceID = [];

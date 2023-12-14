@@ -21,9 +21,12 @@ const Employeelist = () => {
       setisSubmitingLoader(true);
       const result = await getData("/GetAllUser");
       if (result.status) {
-        console.log(result);
+        console.log("Employee List", result);
         setisSubmitingLoader(false);
-        setemployeeList(result.data);
+        const employees = result.data.filter(
+          (item) => item.user_type == "Employee"
+        );
+        setemployeeList(employees);
       } else {
         setisSubmitingLoader(false);
         toast.error("Cannot get Employee List.");
