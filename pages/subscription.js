@@ -6,6 +6,7 @@ import { postData, getData, deleteData } from "@/services/services";
 import { Toaster, toast } from "sonner";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
 const Subscription = () => {
   const router = useRouter();
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
@@ -16,6 +17,8 @@ const Subscription = () => {
   const [subService, setsubService] = useState("");
   const [subServiceDesc, setsubServiceDesc] = useState("");
   const [subserviceAmount, setsubserviceAmount] = useState("");
+  const [SubServices, setSubServices] = useState([]);
+  const [selectedSubServices, setselectedSubServices] = useState([]);
   //bootstrap modal states------
   const [show, setShow] = useState(false);
   const handleClose = () => {
@@ -36,6 +39,7 @@ const Subscription = () => {
   useEffect(() => {
     verifyIsLoggedIn(router);
     getPlans();
+    getSubService();
   }, []);
 
   //function to post service
@@ -43,19 +47,25 @@ const Subscription = () => {
     event.preventDefault();
     try {
       if (serviceName != "" && serviceDescription != "" && amount != "") {
-        setisSubmitingLoader(true);
-        const result = await postData("/StoreSubscription", {
-          subscription_name: serviceName,
-          subscription_description: serviceDescription,
-          subscription_amt: amount,
-        });
-        if (result.status) {
-          getPlans();
+        if (selectedSubServices.length > 0) {
+          setisSubmitingLoader(true);
+          const result = await postData("/StoreSubscription", {
+            subscription_name: serviceName,
+            subscription_description: serviceDescription,
+            subscription_amt: amount,
+            service_id_array: selectedSubServices,
+          });
+          if (result.status) {
+            getPlans();
+            setisSubmitingLoader(false);
+            toast.success("Subscription Added");
+            setserviceDescription("");
+            setserviceName("");
+            setamount("");
+          }
+        } else {
           setisSubmitingLoader(false);
-          toast.success("Subscription Added");
-          setserviceDescription("");
-          setserviceName("");
-          setamount("");
+          toast.error("Please select atleast one service");
         }
       } else {
         setisSubmitingLoader(false);
@@ -133,6 +143,38 @@ const Subscription = () => {
       toast.error(err);
     }
   }
+
+  //function to get subService
+  async function getSubService() {
+    try {
+      const result = await getData("/GetSubscriptionDetails");
+      if (result.status) {
+        // console.log("==>", result);
+        const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+        const sortedList = [...result.data].sort((a, b) =>
+          collator.compare(a.subsc_list, b.subsc_list)
+        );
+
+        // Assuming setSubServices is a state update function
+        setSubServices(sortedList);
+      } else {
+        toast.error("Failed to get Sub-services");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  const handleSubServiceChange = (service) => {
+    const isSelected = selectedSubServices.includes(service);
+
+    if (isSelected) {
+      setselectedSubServices((prevSelected) =>
+        prevSelected.filter((selected) => selected !== service)
+      );
+    } else {
+      setselectedSubServices((prevSelected) => [...prevSelected, service]);
+    }
+  };
   return (
     <>
       {isSubmitingLoader ? (
@@ -261,7 +303,7 @@ const Subscription = () => {
                 <input
                   value={amount}
                   className="mx-4"
-                  type="text"
+                  type="number"
                   placeholder="Amount"
                   onChange={(e) => setamount(e?.target?.value)}
                   required={true}
@@ -269,6 +311,27 @@ const Subscription = () => {
                 <button>Save</button>
               </form>
             </div>
+          </div>
+          <div className="subServicediv">
+            <h4>Select Service</h4>
+            {SubServices.length > 0 ? (
+              <Form className="locationsList">
+                {SubServices.map((location, index) => (
+                  <Form.Check
+                    key={index}
+                    type="checkbox"
+                    id={`locationCheckbox-${location.id}`}
+                    label={location.subsc_list}
+                    checked={selectedSubServices.includes(location)}
+                    onChange={() => handleSubServiceChange(location)}
+                  />
+                ))}
+
+                {/* <Button variant="primary" type="submit">
+                              Submit
+                            </Button> */}
+              </Form>
+            ) : null}
           </div>
           <div className="row">
             {services.length > 0 ? (

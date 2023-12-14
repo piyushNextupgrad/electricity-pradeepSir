@@ -9,6 +9,7 @@ import { AiFillStar } from "react-icons/ai";
 const Employeelist = () => {
   const [employeeList, setemployeeList] = useState([]);
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
+
   const router = useRouter();
   useEffect(() => {
     verifyIsLoggedIn(router);
@@ -35,6 +36,7 @@ const Employeelist = () => {
       toast.error(err);
     }
   }
+
   return (
     <>
       {isSubmitingLoader ? (
