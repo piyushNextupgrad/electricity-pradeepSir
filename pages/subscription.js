@@ -39,7 +39,7 @@ const Subscription = () => {
   useEffect(() => {
     verifyIsLoggedIn(router);
     getPlans();
-    getSubService();
+    getServices();
   }, []);
 
   //function to post service
@@ -48,12 +48,16 @@ const Subscription = () => {
     try {
       if (serviceName != "" && serviceDescription != "" && amount != "") {
         if (selectedSubServices.length > 0) {
+          const arrayofId = [];
+          selectedSubServices.forEach((item) =>
+            arrayofId.push(item.subscription_id)
+          );
           setisSubmitingLoader(true);
           const result = await postData("/StoreSubscription", {
             subscription_name: serviceName,
             subscription_description: serviceDescription,
             subscription_amt: amount,
-            service_id_array: selectedSubServices,
+            service_id_array: arrayofId,
           });
           if (result.status) {
             getPlans();
@@ -145,23 +149,40 @@ const Subscription = () => {
   }
 
   //function to get subService
-  async function getSubService() {
-    try {
-      const result = await getData("/GetSubscriptionDetails");
-      if (result.status) {
-        // console.log("==>", result);
-        const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-        const sortedList = [...result.data].sort((a, b) =>
-          collator.compare(a.subsc_list, b.subsc_list)
-        );
+  // async function getSubService() {
+  //   try {
+  //     const result = await getData("/GetSubscriptionDetails");
+  //     if (result.status) {
+  //       // console.log("==>", result);
+  //       const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+  //       const sortedList = [...result.data].sort((a, b) =>
+  //         collator.compare(a.subsc_list, b.subsc_list)
+  //       );
 
-        // Assuming setSubServices is a state update function
-        setSubServices(sortedList);
+  //       // Assuming setSubServices is a state update function
+  // setSubServices(sortedList);
+  //     } else {
+  //       toast.error("Failed to get Sub-services");
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
+  async function getServices() {
+    try {
+      setisSubmitingLoader(true);
+      const result = await getData("/GetService");
+      if (result.status) {
+        console.log("===>", result);
+        setisSubmitingLoader(false);
+        setSubServices(result.data);
       } else {
-        toast.error("Failed to get Sub-services");
+        setisSubmitingLoader(false);
+        toast.error("Faied to load Services");
       }
     } catch (err) {
-      console.log(err);
+      setisSubmitingLoader(false);
+      toast.error(err);
     }
   }
   const handleSubServiceChange = (service) => {
@@ -225,7 +246,7 @@ const Subscription = () => {
           <>
             <Modal show={show} onHide={handleClose}>
               <Modal.Header closeButton>
-                <Modal.Title>Update Modal</Modal.Title>
+                <Modal.Title>Update Pan</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 Woohoo, you are reading this text in a modal!
@@ -321,7 +342,7 @@ const Subscription = () => {
                     key={index}
                     type="checkbox"
                     id={`locationCheckbox-${location.id}`}
-                    label={location.subsc_list}
+                    label={location.service_name}
                     checked={selectedSubServices.includes(location)}
                     onChange={() => handleSubServiceChange(location)}
                   />
