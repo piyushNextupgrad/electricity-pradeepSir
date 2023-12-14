@@ -250,7 +250,7 @@ const detailsservices = () => {
                     </form>
                     <div className="parent_Loc_Service">
                       <div className="sec1">
-                        <h4>Locations</h4>
+                        {/* <h4>Locations</h4>
                         {locations.length > 0 ? (
                           <Form
                             className="locationsList"
@@ -267,11 +267,9 @@ const detailsservices = () => {
                               />
                             ))}
 
-                            {/* <Button variant="primary" type="submit">
-                              Submit
-                            </Button> */}
+                            
                           </Form>
-                        ) : null}
+                        ) : null} */}
                       </div>
                       <div className="sec2">
                         <h4>Service Details</h4>
