@@ -53,7 +53,7 @@ const Employeelist = () => {
               <h4 className="page-title">List of Employee</h4>
               <ol className="breadcrumb pl-0">
                 <li className="breadcrumb-item">
-                  <a href="#">Home</a>
+                  <a href="/Dashboard">Home</a>
                 </li>
                 <li className="breadcrumb-item active" aria-current="page">
                   List of Employee

@@ -5,10 +5,14 @@ import { MdPlumbing, MdElectricalServices } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
-import { postData, getData } from "@/services/services";
+import { postData, getData, deleteData, putData } from "@/services/services";
 import { Toaster, toast } from "sonner";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
 
 const detailsservices = () => {
   const router = useRouter();
@@ -20,13 +24,42 @@ const detailsservices = () => {
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [SubServices, setSubServices] = useState([]);
   const [selectedSubServices, setselectedSubServices] = useState([]);
+  const [Service_cost, setService_cost] = useState('')
+  // const [updatedService, setUpdatedService] = useState({})
+  const [service_name_update, setService_name_update] = useState('')
+  const [service_cost_update, setService_cost_update] = useState('')
+  const [service_des_update, setService_des_update] = useState('')
+  const [service_update_id, setService_update_id] = useState()
+  const [sub_service_update, set_seb_service_update] = useState([])
+  const [sub_service_update_id,setSub_service_update_id]  = useState([])
+  const [refresh, setRefresh] = useState('');
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = async (id) => {
+    setShow(true);
+    console.log("id",id)
+    const resp = await getData(`/GetOneService?id=${id}`)
+    console.log("GetOneService",resp)
+    // setUpdatedService(resp.data[0])
+    setService_cost_update(resp.data[0].service_cost)
+    setService_name_update(resp.data[0].service_names)
+    setService_des_update(resp.data[0].service_des)
+    setService_update_id(resp.data[0].subscription_id)
+    set_seb_service_update(resp.data[0].subsc_lists)
+  }
+
 
   useEffect(() => {
     verifyIsLoggedIn(router);
     getServices();
     getLocation();
     getSubService();
-  }, []);
+  }, [refresh]);
+
+  // useEffect(() => {
+  //   getServices();
+  // }, []);
 
   //function to post service
   async function saveService(event) {
@@ -39,8 +72,8 @@ const detailsservices = () => {
         selectedSubServices.forEach((item) =>
           arrayofSubServiceID.push(item.id)
         );
-        // console.log("arrayofLocationId", arrayOfLocationID);
-        // console.log("arrayofSubServiceId", arrayofSubServiceID);
+        console.log("arrayofLocationId", arrayOfLocationID);
+        console.log("arrayofSubServiceId", arrayofSubServiceID);
 
         setisSubmitingLoader(true);
         const result = await postData("/StoreService", {
@@ -48,14 +81,15 @@ const detailsservices = () => {
           service_des: serviceDetail,
           service_des_id: arrayofSubServiceID,
           location: arrayOfLocationID,
+          service_cost: Service_cost
         });
-        // console.log("===>", result);
+        console.log("result", result);
         if (result.status) {
           setisSubmitingLoader(false);
 
           setServiceName("");
           setServiceDetail("");
-
+          setService_cost("")
           setselectedSubServices([]);
           setSelectedLocations([]);
           toast.success("Service Saved.");
@@ -79,7 +113,7 @@ const detailsservices = () => {
       setisSubmitingLoader(true);
       const result = await getData("/GetService");
       if (result.status) {
-        console.log("===>", result);
+        // console.log("===>", result);
         setisSubmitingLoader(false);
         setServices(result.data);
       } else {
@@ -96,7 +130,7 @@ const detailsservices = () => {
     try {
       const result = await getData("/GetServiceLocation");
       if (result.status) {
-        console.log("==>", result);
+        // console.log("==>", result);
         const collator = new Intl.Collator(undefined, { sensitivity: "base" });
         const sortedList = [...result.data].sort((a, b) =>
           collator.compare(a.location_name, b.location_name)
@@ -134,7 +168,6 @@ const detailsservices = () => {
       setselectedSubServices((prevSelected) => [...prevSelected, service]);
     }
   };
-
   const handleLocationSubmit = (e) => {
     e?.preventDefault();
     // Add your form submission logic here using selectedLocations
@@ -164,6 +197,68 @@ const detailsservices = () => {
       console.log(err);
     }
   }
+  const SubServiceUpdate = async(update) => {
+    // console.log("update", update)
+    // console.log("existing list", sub_service_update)
+
+    if (!sub_service_update.includes(update)) {
+      sub_service_update.push(update)
+    }
+    else {
+      const index = sub_service_update.indexOf(update);
+      if (index > -1) { // only splice array when item is found
+        sub_service_update.splice(index, 1); // 2nd parameter means remove one item only
+      }
+    }
+    // console.log("updated services list", sub_service_update)
+
+    const resp = await getData("/GetSubscriptionDetails")
+    // console.log("Sub service list",resp.data)
+    // const sub_service_update_id = [];
+    resp.data.map((item)=>{
+      if(sub_service_update.includes(item.subsc_list)){
+        if(!sub_service_update_id.includes(item.id)){
+          sub_service_update_id.push(item.id)
+        }
+        
+      }
+    })
+    console.log("sub_service_update_id",sub_service_update_id)
+    setRefresh(Math.random())
+
+  }
+  const updateService = async () => {
+    setisSubmitingLoader(true)
+    try {
+      const updated_data = {
+        "updId": service_update_id,
+        "service_name": service_name_update,
+        "service_cost": parseInt(service_cost_update),
+        "service_des": service_des_update,
+        "service_des_id":sub_service_update_id//array of id will submited
+      }
+      console.log("updated data", updated_data)
+      const resp = await putData("/UpdateService", updated_data)
+
+      resp.message === "Service Updated Successfully" ? toast.success(resp.message) : toast.error(resp.message)
+      setRefresh(Math.random())
+    } catch (error) {
+      console.log("try-catch error", error)
+    }
+    handleClose()
+    setisSubmitingLoader(false)
+  }
+
+  const deleteService = async (item) => {
+    setisSubmitingLoader(true)
+    // console.log("item",item)
+    const resp = await deleteData("/DeleteService", { "delId": item })
+    // console.log("delete resp", resp)
+    resp.message === "Service Deleted Successfully" ? toast.success(resp.message) : toast.error(resp.message)
+    setisSubmitingLoader(false)
+    // location.reload();
+    setRefresh(Math.random())
+  }
 
   return (
     <>
@@ -175,6 +270,47 @@ const detailsservices = () => {
         </div>
       ) : null}
       <Toaster position="top-center" richColors />
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header >
+          <Modal.Title>Update Service</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="formGroupEmail">
+              <Form.Label>Service Name</Form.Label>
+              <Form.Control type="email" value={service_name_update} onChange={(e) => setService_name_update(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formGroupPassword">
+              <Form.Label>Service Cost</Form.Label>
+              <Form.Control type="text" value={service_cost_update} onChange={(e => setService_cost_update(e.target.value))} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formGroupPassword">
+              <Form.Label>Service Description</Form.Label>
+              <Form.Control type="text" value={service_des_update} onChange={(e) => setService_des_update(e.target.value)} />
+            </Form.Group>
+            <Row className="mb-3">
+              <Col sm={10}>
+                <Form.Group className="mb-3 " id="formGridCheckbox">
+                  {SubServices.map((item, index) => (
+
+                    <Form.Check type="checkbox" label={item.subsc_list} key={index} checked={sub_service_update.includes(item.subsc_list) ? true : false} onChange={(e) => SubServiceUpdate(item.subsc_list)} />
+
+                  ))}
+                </Form.Group>
+
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="success" onClick={() => updateService()}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <div className="app-content">
         <div className="side-app leftmenu-icon">
           <div className="page-header">
@@ -182,7 +318,7 @@ const detailsservices = () => {
               <h4 className="page-title">Details of Services</h4>
               <ol className="breadcrumb pl-0">
                 <li className="breadcrumb-item">
-                  <a href="#">Home</a>
+                  <a href="/Dashboard">Home</a>
                 </li>
                 <li className="breadcrumb-item active" aria-current="page">
                   Details of Services
@@ -229,13 +365,15 @@ const detailsservices = () => {
                           onChange={(e) => setServiceDetail(e?.target?.value)}
                         />
                       </div>
-                      {/* <div className="col-2">
+                      <div className="col-2">
                         <input
                           type="text"
                           className="form-control header-search"
-                          placeholder="Services Time"
+                          placeholder="Services Cost"
+                          onChange={(e) => setService_cost(e.target.value)}
+                          value={Service_cost}
                         />
-                      </div> */}
+                      </div>
                       <div className="col-2">
                         <div className="text-end row searchsexction">
                           <button type="submit" className="btn btn-primary">
@@ -285,6 +423,7 @@ const detailsservices = () => {
                                 id={`locationCheckbox-${location.id}`}
                                 label={location.subsc_list}
                                 checked={selectedSubServices.includes(location)}
+
                                 onChange={() =>
                                   handleSubServiceChange(location)
                                 }
@@ -314,18 +453,34 @@ const detailsservices = () => {
                           <div className="fa-stack services bg-primary-transparent  fa-lg fa-1x  mb-3">
                             <TbAirConditioningDisabled />
                           </div>
-                          <h3>{item.service_name}</h3>
-                          <p>{item.service_des}</p>
-                          <ul>
-                            <li>Suspendisse eleifend.</li>
-                            <li>Proin et dui imperdiet.</li>
+                          <h3>{item.service_names}</h3>
+                          <h4><b>${item.service_cost}</b></h4>
+                          <p><b>{item.service_des}</b></p>
+
+                          <ul style={{ padding: "0px", display: "grid" }}>
+                            {/* {console.log("asdf",item.subsc_lists)} */}
+                            {item.subsc_lists.map((subItem, index) => (
+                              // {console.log("subItem",subItem)}
+                              <li key={index}>{subItem}</li>
+                            ))}
+                            {/* <li>Proin et dui imperdiet.</li>
                             <li>Proin at magna posuere.</li>
                             <li>Proin hendrerit magna.</li>
-                            <li>Donec consequat quam.</li>
+                            <li>Donec consequat quam.</li> */}
                           </ul>
                         </div>
+                        <div className="pricingTable2-sign-up">
+                          <a href="#" className="btn btn-block btn-success" onClick={() => handleShow(item.subscription_id)}>
+                            Edit
+                          </a>
+                          <a href="#" className="btn btn-block btn-danger mt-4" onClick={() => deleteService(item.subscription_id)}>
+                            Delete
+                          </a>
+                        </div>
                       </div>
+
                     </div>
+
                   </div>
                 ))}
               </>

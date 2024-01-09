@@ -61,7 +61,7 @@ const Sidebar = () => {
               <span className="side-menu__label">List of Employee</span>
             </Link>
           </li>
-          <li className="slide">
+          {/* <li className="slide">
             <Link
               className="side-menu__item"
               data-toggle="slide"
@@ -70,7 +70,7 @@ const Sidebar = () => {
               <FaBusinessTime />
               <span className="side-menu__label">Scheduled Services</span>
             </Link>
-          </li>
+          </li> */}
           <li className="slide">
             <Link
               className="side-menu__item"
@@ -88,7 +88,7 @@ const Sidebar = () => {
               href="/Servicerequest"
             >
               <FaSuitcase />
-              <span className="side-menu__label">Services Required</span>
+              <span className="side-menu__label">Scheduled Services</span>
             </Link>
           </li>
           <li>

@@ -8700,7 +8700,7 @@ a.text-dark:focus {
 }
 a {
   -webkit-text-decoration-skip: ink;
-  text-decoration-skip: ink;
+  text-decoration-skip: auto;
 }
 h1 a,
 h2 a,
@@ -19984,4 +19984,8 @@ a.actionsubmit:hover {
 }
 .star {
   color: #feb800;
+}
+.cellOverlap{
+  white-space: normal !important;
+  min-width: 400px !important;
 }
