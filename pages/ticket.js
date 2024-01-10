@@ -11,11 +11,12 @@ const Ticket = () => {
   const [allEmployee, setAllEmployee] = useState([]);
   const [EmployeeAllotedId, setEmployeeAllotedId] = useState();
   const [updateEmployee,setUpdateEmployee] = useState('')
+  const [Refresh,setRefresh] = useState('')
 
 
   useEffect(() => {
     getTicket();
-  }, []);
+  }, [Refresh]);
 
   const getTicket = async () => {
     setisSubmitingLoader(true)
@@ -68,6 +69,7 @@ const Ticket = () => {
 
         // console.log("update details", customerId, ticketId, SpptStatus)
         // console.log("Employee alloted id", EmployeeAllotedId)
+        setRefresh(Math.random())
         setEmployeeAllotedId();
 
 
@@ -181,7 +183,7 @@ const Ticket = () => {
                                       </select>
                                     </td>
                                     <td  >
-                                      <span className="unpaid">{item.support_status == 0 ? <>Pending</> : <>Done</>}</span>
+                                      <span className={item.support_status == 0?"unpaid":"paid done"}>{item.support_status == 0 ? <>Pending</> : <>Done</>}</span>
                                     </td>
                                     <td>
                                       <Link className="actionsubmit" href="#" onClick={() => handleAllotment(item.customer_id, item.id, item.support_status)}>Submit</Link>

@@ -3665,3 +3665,7 @@ input[type="button"].btn-block {
 .subServicediv {
   margin-bottom: 5rem;
 }
+.done {
+  color: green !important;
+  background-color: lightgreen !important;
+}
