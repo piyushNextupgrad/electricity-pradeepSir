@@ -233,7 +233,7 @@ const Location = () => {
         subsc_status: newStatus == true ? "1" : "0",
         subsc_amt: newAmount,
       });
-
+      console.log("update sub service resp",result)
       if (result.status) {
         setisSubmitingLoader(false);
         toast.success("Record Updated");
@@ -433,34 +433,34 @@ const Location = () => {
             <tbody>
               {locations.length > 0
                 ? locations.map((item, index) => (
-                    <tr key={index}>
-                      <td className="actionTable">{item.location_name}</td>
-                      <td className="actionTable">{item.zip_code}</td>
-                      <td className="actionTable">
-                        {item.location_status == "1" ? (
-                          <>
-                            <span className="status-icon bg-success" />
-                            Active
-                          </>
-                        ) : (
-                          <>
-                            <span className="status-icon bg-warning" />
-                            Inactive
-                          </>
-                        )}
-                      </td>
-                      <td className="actionTable">
-                        <span className="actionInner">
-                          <span onClick={() => toggleLocationRecord(item.id)}>
-                            <FaEdit className="tableIcons" />
-                          </span>
-                          <span onClick={() => deleteLocation(item.id)}>
-                            <AiFillDelete className="tableIcons" />
-                          </span>
+                  <tr key={index}>
+                    <td className="actionTable">{item.location_name}</td>
+                    <td className="actionTable">{item.zip_code}</td>
+                    <td className="actionTable">
+                      {item.location_status == "1" ? (
+                        <>
+                          <span className="status-icon bg-success" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <span className="status-icon bg-warning" />
+                          Inactive
+                        </>
+                      )}
+                    </td>
+                    <td className="actionTable">
+                      <span className="actionInner">
+                        <span onClick={() => toggleLocationRecord(item.id)}>
+                          <FaEdit className="tableIcons" />
                         </span>
-                      </td>
-                    </tr>
-                  ))
+                        <span onClick={() => deleteLocation(item.id)}>
+                          <AiFillDelete className="tableIcons" />
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                ))
                 : null}
             </tbody>
           </table>
@@ -544,37 +544,37 @@ const Location = () => {
             <tbody>
               {subService.length > 0
                 ? subService.map((item, index) => (
-                    <tr key={index}>
-                      <td className="actionTable">{item.subsc_list}</td>
-                      <td className="actionTable">{item.subsc_amt}</td>
-                      <td className="actionTable">
-                        {item.subsc_status === "1" ? (
-                          <>
-                            <span className="status-icon bg-success" />
-                            Active
-                          </>
-                        ) : (
-                          <>
-                            <span className="status-icon bg-warning" />
-                            Inactive
-                          </>
-                        )}
-                      </td>
-                      <td className="actionTable">
-                        <span className="actionInner">
-                          <span>
-                            <FaEdit
-                              className="tableIcons"
-                              onClick={(e) => toggleServiceRecord(item.id)}
-                            />
-                          </span>
-                          <span onClick={() => deleteService(item.id)}>
-                            <AiFillDelete className="tableIcons" />
-                          </span>
+                  <tr key={index}>
+                    <td className="actionTable">{item.subsc_list}</td>
+                    <td className="actionTable">{item.subsc_amt}</td>
+                    <td className="actionTable">
+                      {item.subsc_status === "1" ? (
+                        <>
+                          <span className="status-icon bg-success" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <span className="status-icon bg-warning" />
+                          Inactive
+                        </>
+                      )}
+                    </td>
+                    <td className="actionTable">
+                      <span className="actionInner">
+                        <span>
+                          <FaEdit
+                            className="tableIcons"
+                            onClick={(e) => toggleServiceRecord(item.id)}
+                          />
                         </span>
-                      </td>
-                    </tr>
-                  ))
+                        <span onClick={() => deleteService(item.id)}>
+                          <AiFillDelete className="tableIcons" />
+                        </span>
+                      </span>
+                    </td>
+                  </tr>
+                ))
                 : null}
             </tbody>
           </table>

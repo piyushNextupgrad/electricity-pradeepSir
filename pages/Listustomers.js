@@ -40,7 +40,7 @@ const Listustomers = () => {
                 <a href="/Dashboard">Home</a>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
-                List of Customers
+                List of Users
               </li>
             </ol>
           </div>
@@ -61,12 +61,13 @@ const Listustomers = () => {
                   <table className="table card-table table-bordered table-vcenter text-nowrap table-primary">
                     <thead className="bg-primary text-white">
                       <tr>
-                        <th className="text-white">Customers ID</th>
-                        <th className="text-white">Customers Name</th>
+                        <th className="text-white">User ID</th>
+                        <th className="text-white">User Name</th>
                         <th className="text-white">Location</th>
                         <th className="text-white">Zip Code</th>
                         <th className="text-white">Email ID</th>
                         <th className="text-white">Contact No.</th>
+                        <th className="text-white">User Type</th>
                         <th className="text-white">Payment</th>
                         <th className="text-white">Rating</th>
                       </tr>
@@ -76,6 +77,7 @@ const Listustomers = () => {
                         totalCustomers ? totalCustomers.map((item, index) => (
                           <tr key={index}>
                             <th scope="row">{item.id}</th>
+                            {/* {console.log("itemm",item)} */}
                             <td>{item.name}</td>
                             <td>{item.user_house_num ? item.user_house_num : ''} {item.user_locality ? item.user_locality : ''} {item.user_city ? item.user_city : ''} {item.user_state ? item.user_state : ''}</td>
 
@@ -84,6 +86,7 @@ const Listustomers = () => {
                             <td>{item.user_zipcode ? item.user_zipcode : <span></span>}</td>
                             <td>{item.email}</td>
                             <td>{item.user_phno ? item.user_phno : <span></span>}</td>
+                            <td>{item.user_type}</td>
                             <td>
                               <span className="unpaid">{item.user_status == 1 ? <>paid</> : <>unpaid</>}</span>
                             </td>

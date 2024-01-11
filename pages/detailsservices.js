@@ -182,13 +182,15 @@ const detailsservices = () => {
     try {
       const result = await getData("/GetSubscriptionDetails");
       if (result.status) {
-        // console.log("==>", result);
+        console.log("==>", result);
         const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-        const sortedList = [...result.data].sort((a, b) =>
+        let sortedList = [...result.data].sort((a, b) =>
           collator.compare(a.subsc_list, b.subsc_list)
         );
 
         // Assuming setSubServices is a state update function
+        sortedList = sortedList.filter((item)=>item.subsc_status=="1")
+        console.log("sortedList",sortedList)
         setSubServices(sortedList);
       } else {
         toast.error("Failed to get Sub-services");

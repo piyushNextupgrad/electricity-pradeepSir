@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { getData, putData } from '@/services/services';
 import { useEffect, useState } from 'react';
 import { Toaster, toast } from "sonner";
+import { getFormatedDate } from '@/helper/helper';
 
-
+getFormatedDate
 const Servicerequest = () => {
 
   const [ServiceBooked, setServiceBooked] = useState('');
@@ -157,24 +158,25 @@ const Servicerequest = () => {
                           <th className="text-white">Action</th>
                         </tr>
                       </thead>
-                        {console.log("ServiceBooked",ServiceBooked)}
+                        
                       <tbody>
                         { 
                           ServiceBooked ? ServiceBooked.map((item, index) => (
+                            
                             <tr key={index}>
                               <th scope="row">{item.unique_service_id ? item.unique_service_id : <span></span>}</th>
-                              {/* {console.log("item",item)} */}
+                              {console.log("item",item)}
                               <td>{item.service_name}</td>
                               <td>${item.service_cost * item.qty}</td>
                               <td>{item.qty}</td>
-                              <td>{item.service_avail_date}</td>
-                              <td>{item.created_at}</td>
+                              <td>{getFormatedDate(item.service_avail_date,"DD-MM-YYYY hh:mm")}</td>
+                              <td>{getFormatedDate(item.created_at,"DD-MM-YYYY hh:mm")}</td>
                               <td>{item.customer_name} [ ID:{item.customer_id} ]</td>
                               <td>{item.customer_phno}</td>
                               <td>{item.customer_address}</td>
 
                               <td>
-                                <select className="form-control" tabIndex={-1} aria-hidden="true" value={item.emp_id} onChange={(e) => { setAllotedEmployeeId(e.target.value); }}>
+                                <select className="form-control" tabIndex={-1} aria-hidden="true" value={item.emp_id} onChange={(e) => { setAllotedEmployeeId(e.target.value);item.emp_id=e.target.value }}>
                                   <option value="--">--</option>
 
                                   {
@@ -189,9 +191,12 @@ const Servicerequest = () => {
                                 <span className={item.status == 0 ? "unpaid" : "paid done"}>{item.status == 0 ? <div>pending</div> : <div>Done</div>}</span>
                               </td>
                               <td>
-                                <a className="actionsubmit" href="#" onClick={() => ServiceAllotement(item.id)} >
+                                {item.status == 0?(<a className="actionsubmit" href="#" onClick={() => ServiceAllotement(item.id)} >
                                   Submit
-                                </a>
+                                </a>):(<a className="actionsubmit" href="#" onClick={() => toast.error("Service is completed!")} >
+                                  Submit
+                                </a>)}
+                                
                               </td>
 
                             </tr>

@@ -162,17 +162,17 @@ const Ticket = () => {
                               <tbody>
                                 {ticketList ? ticketList.map((item, index) => (
                                   <tr key={index}>
-                                    {console.log("item",item)}
+                                    {/* {console.log("item",item)} */}
                                     <th scope="row">{item.id}</th>
                                     <td>{item.unique_service_id}</td>
                                     <td>{allServices.map((i) => i.subscription_id == item.service_id ? i.service_names : "")}</td>
-                                    <td>{getFormatedDate(item.created_at, "DD-MM-YYYY hh:mm:ss")}</td>
+                                    <td>{getFormatedDate(item.created_at, "DD-MM-YYYY hh:mm")}</td>
                                     <td className='cellOverlap'>{item.issue_desc}</td>
                                     <td>{allUser.map((u) => u.id == item.customer_id ? u.name : '')}</td>
                                     <td>{allUser.map((u) => u.id == item.customer_id ? u.user_house_num + " " + u.user_locality + " " + u.user_landmark + " " + u.user_city + " " + u.user_state : '')}</td>
                                     <td>{allUser.map((u) => u.id == item.customer_id ? u.user_phno : '')}</td>
                                     <td>
-                                      <select className="form-control" tabIndex={-1} aria-hidden="true" value={item.emp_id} onChange={(e) =>{setEmployeeAllotedId(e.target.value);setUpdateEmployee(e.target.value)}}>
+                                      <select className="form-control" tabIndex={-1} aria-hidden="true" value={item.emp_id} onChange={(e) =>{setEmployeeAllotedId(e.target.value);item.emp_id=e.target.value}}>
                                         <option value="--">--</option>
                                         {
                                           allEmployee.map((item, index) => (
@@ -186,7 +186,8 @@ const Ticket = () => {
                                       <span className={item.support_status == 0?"unpaid":"paid done"}>{item.support_status == 0 ? <>Pending</> : <>Done</>}</span>
                                     </td>
                                     <td>
-                                      <Link className="actionsubmit" href="#" onClick={() => handleAllotment(item.customer_id, item.id, item.support_status)}>Submit</Link>
+                                      {item.support_status == 0?(<Link className="actionsubmit" href="#" onClick={() => handleAllotment(item.customer_id, item.id, item.support_status)}>Submit</Link>):(<Link className="actionsubmit" href="#" onClick={() => toast.error("Ticket is completed!")}>Submit</Link>)}
+                                      
                                     </td>
                                   </tr>
                                 )) : null}
