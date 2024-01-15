@@ -40,8 +40,9 @@ export default function Home() {
     try {
       setisSubmitingLoader(true);
       const result = await postData("/login", { email: email, password: pass });
-      // console.log("result", result);
-      if (result.success) {
+      console.log("result", result);
+      if (result.data.name.user_type=="Admin") {
+
         localStorage.setItem("Etoken", result.data.token);
         // localStorage.setItem("username", result.data.name.name);
         // localStorage.setItem("email", result.data.name.email);
@@ -55,7 +56,7 @@ export default function Home() {
         }, 1500);
       } else {
         setisSubmitingLoader(false);
-        toast.error("Login Failed");
+        toast.error("Login Failed [Unauthorised]");
       }
     } catch (err) {
       console.log(err);
@@ -97,7 +98,7 @@ export default function Home() {
                       tabIndex={500}
                       onSubmit={handleSubmit}
                     >
-                      <h2 className="mb-1 font-weight-semibold">Login</h2>
+                      <h2 className="mb-1 font-weight-semibold">Login [Admin]</h2>
                       <p className="mb-6">Sign In to your account</p>
                       <div className="input-group mb-3">
                         <span className="input-group-addon">
@@ -141,13 +142,13 @@ export default function Home() {
                     </form>
 
                     <div className="card-body social-icons border-top">
-                      <a className="btn  btn-social btn-fb mr-2">
+                      <a className="btn  btn-social btn-fb mr-2" href="https://www.facebook.com">
                         <FaFacebookF />
                       </a>
-                      <a className="btn  btn-social btn-googleplus mr-2">
+                      <a className="btn  btn-social btn-googleplus mr-2" href="https://www.youtube.com">
                         <FaYoutube />
                       </a>
-                      <a className="btn  btn-social btn-twitter-transparant  ">
+                      <a className="btn  btn-social btn-twitter-transparant  " href="https://www.twitter.com">
                         <FaTwitter />
                       </a>
                     </div>
