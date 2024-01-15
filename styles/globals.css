@@ -3669,3 +3669,8 @@ input[type="button"].btn-block {
   color: green !important;
   background-color: lightgreen !important;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

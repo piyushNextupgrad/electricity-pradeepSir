@@ -12,12 +12,77 @@ import {
 } from "react-icons/fa6";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Image from "next/image";
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import { getData, postData } from "@/services/services";
+import axios from "axios";
+import { MdPassword } from "react-icons/md";
+import { toast } from "sonner";
 const Header = () => {
   const router = useRouter();
   const [sidebarClass, setsidebarClass] = useState("sidenav-toggled");
+  const [userID, setUserID] = useState();
   const [username, setusername] = useState("");
   const [email, setemail] = useState("");
+  const [userPhoto, setUserPhoto] = useState('')
+  const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
+  const [userPhone, setUserPhone] = useState();
+  const [userNewPassword, setUserNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [userAddress, setUserAddress] = useState('');
+  const [userZip, setUserZip] = useState();
+  const [userCity, setUserCity] = useState('');
+  const [userState, setUserState] = useState('');
+  const [userCountry, setUserCountry] = useState('');
+  const [refresh,setRefresh] = useState("");
+  const [userUpdatedPhoto, setUserUpdatedPhoto] = useState('');
 
+
+
+
+
+
+
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  useEffect(() => {
+    // const user = localStorage.getItem("username");
+    // const mail = localStorage.getItem("email");
+    // setusername(user);
+    // setemail(mail);
+    getUser()
+  }, [refresh]);
+
+  const getUser = async () => {
+    setisSubmitingLoader(true)
+    try {
+      const userId = localStorage.getItem("UserID")
+      setUserID(userId)
+      const resp = await getData(`/GetAllUser?id=${userId}`)
+      console.log("user update", resp)
+      setusername(resp.data[0].name)
+      setUserPhoto(resp.data[0].user_profile_photo)
+      setemail(resp.data[0].email)
+      setUserPhone(resp.data[0].user_phno)
+      setUserAddress(resp.data[0].user_locality)
+      setUserZip(resp.data[0].user_zipcode)
+      setUserCity(resp.data[0].user_city)
+      setUserState(resp.data[0].user_state)
+      setUserCountry(resp.data[0].user_country)
+    } catch (error) {
+      console.log("try-catch error", error)
+    }
+    setisSubmitingLoader(false)
+
+  }
   function toggleSidebar() {
     if (sidebarClass == "sidenav-toggled") {
       setsidebarClass("");
@@ -30,12 +95,53 @@ const Header = () => {
     }
   }
 
-  useEffect(() => {
-    const user = localStorage.getItem("username");
-    const mail = localStorage.getItem("email");
-    setusername(user);
-    setemail(mail);
-  }, []);
+  const UserUpdate = async() => {
+    setisSubmitingLoader(true)
+    try {
+      if(userPhone.length==10 || userPhone.length==undefined && userZip.length==6 || userZip.length==undefined){
+        const formData = new FormData();
+      // formData.append('updId', user_id);
+      // formData.append('name', name);
+      // formData.append('user_alt_phno', alt_phone);
+      // formData.append('user_locality', locality);
+      // formData.append('user_house_num', Hno);
+      // formData.append('user_landmark', lankmark);
+      // formData.append('user_zipcode', zip);
+      // formData.append('user_city', city);
+      // formData.append('user_state', state);
+      // formData.append('user_country', country);
+      // formData.append('user_profile_photo', profile_photo);
+      // console.log("form fields",userID)
+
+      
+      formData.append('updId', userID)
+      formData.append("name", username)
+      formData.append("email", email)
+      formData.append("user_phno", userPhone)
+      formData.append("user_city", userCity)
+      formData.append("user_locality", userAddress)
+      formData.append("user_state", userState)
+      formData.append("user_zipcode", userZip)
+      formData.append("user_profile_photo", userUpdatedPhoto)
+      formData.append("user_country", userCountry)
+
+      // console.log("formData", formData)
+      const resp = await axios.post(process.env.SITE_URL+"/UpdateUser", formData)
+      console.log("user update resp", resp)
+      resp.data.message==="User Updated Successfully"? toast.success(resp.data.message):toast.error(resp.data.message)
+      }
+      else{
+        toast.error("Please check phone and zipcode.")
+      }
+      
+    } catch (error) {
+      console.log("try-catch error", error)
+    }
+    setRefresh(Math.random())
+    setisSubmitingLoader(false)
+
+  }
+
 
   function logout() {
     localStorage.clear();
@@ -44,6 +150,119 @@ const Header = () => {
 
   return (
     <>
+      {isSubmitingLoader ? (
+        <div className="overlay">
+          <div className="spinner-container">
+            <img className="animatingSpinnerSvg" src="/spinner.svg" alt="" />
+          </div>
+        </div>
+      ) : null}
+      {/* model start */}
+      <Modal show={show} onHide={handleClose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title><Image src="/logo.png" height={50} width={200} alt="img" /></Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="container">
+            <div className="row">
+              <div className="col-4 d-flex justify-content-center align-items-center">
+                <Row>
+                  <Image src={userPhoto == null ? "/dummy.jpg" : `https://nextupgrad.us/electricity/public/images/profile_photo/${userPhoto}`} height={200} width={200} alt="img" className="rounded-circle" />
+                </Row>
+              </div>
+              <div className="col-8">
+                <Form>
+
+                  <Row className="mb-1">
+                    <Form.Group as={Col} controlId="formGridPassword">
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control type="text" value={username} onChange={(e) => setusername(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridEmail">
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control type="email" value={email} onChange={(e) => setemail(e.target.value)} disabled />
+                    </Form.Group>
+
+
+
+                  </Row>
+
+                  <Form.Group controlId="formFile" className="mb-1">
+                    <Form.Label>Profile Photo</Form.Label>
+                    <Form.Control type="file" onChange={(e) => setUserUpdatedPhoto(e.target.files[0])} />
+                  </Form.Group>
+
+                  <Row>
+                    <Form.Group as={Col} controlId="formGridfghPassword">
+                      <Form.Label>Phone</Form.Label>
+                      <Form.Control type="number" value={userPhone} onChange={(e) => setUserPhone(e.target.value)} />
+                    </Form.Group>
+
+                  </Row>
+                  <Row className="mb-1 mt-1">
+
+
+                    <Form.Group as={Col} controlId="formGriddhEmail">
+                      <Form.Label>New Password</Form.Label>
+                      <Form.Control type="password" placeholder="Enter new password" value={userNewPassword} onChange={(e) => setUserNewPassword(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridasdrgEmail">
+                      <Form.Label>Confirm New Password</Form.Label>
+                      <Form.Control type="password" placeholder="Confirm new password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} />
+                    </Form.Group>
+
+
+                  </Row>
+
+                  <Form.Group className="mb-1" controlId="formGridAddress2">
+                    <Form.Label>Address</Form.Label>
+                    <Form.Control type="text" value={userAddress} onChange={(e) => setUserAddress(e.target.value)} />
+                  </Form.Group>
+
+
+                  <Row className="mb-1">
+                    <Form.Group as={Col} controlId="formGridZip">
+                      <Form.Label>Zip code</Form.Label>
+                      <Form.Control type="number" value={userZip} onChange={(e) => setUserZip(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridCity">
+                      <Form.Label>City</Form.Label>
+                      <Form.Control type="text" value={userCity} onChange={(e) => setUserCity(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridfggCity">
+                      <Form.Label>State</Form.Label>
+                      <Form.Control type="text" value={userState} onChange={(e) => setUserState(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGriddfgdCity">
+                      <Form.Label>Country</Form.Label>
+                      <Form.Control type="text" value={userCountry} onChange={(e) => setUserCountry(e.target.value)} />
+                    </Form.Group>
+
+
+
+
+                  </Row>
+
+
+
+
+                </Form>
+              </div>
+            </div>
+
+          </div>
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="success" onClick={UserUpdate}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* model end */}
       <div className="app-header header top-header">
         <div className="container-fluid">
           <div className="d-flex">
@@ -267,23 +486,25 @@ const Header = () => {
                     </span>
                     <small className="text-muted mr-3">Admin</small>
                   </div>
-                  <img
+                  <Image
                     className="avatar avatar-md brround"
-                    src="/HD.png"
+                    src={userPhoto == null ? "/dummy.jpg" : `https://nextupgrad.us/electricity/public/images/profile_photo/${userPhoto}`}
                     alt="image"
+                    width={50}
+                    height={50}
                   />
                 </a>
                 <div className="dropdown-menu dropdown-menu-right dropdown-menu-arrow w-250">
                   <div className="user-profile border-bottom p-3">
                     <div className="user-image">
-                      <img className="user-images" src="/HD.png" alt="image" />
+                      <img className="user-images" src={userPhoto == null ? "/dummy.jpg" : `https://nextupgrad.us/electricity/public/images/profile_photo/${userPhoto}`} alt="image" />
                     </div>
                     <div className="user-details">
                       <h4>{username}</h4>
                       <p className="mb-1 fs-13 text-muted">{email}</p>
                     </div>
                   </div>
-                  <a href="#" className="dropdown-item pt-3 pb-3">
+                  <a href="#" className="dropdown-item pt-3 pb-3" onClick={handleShow}>
                     <FaUserTie /> My Profile{" "}
                   </a>
                   <a href="#" className="dropdown-item pt-3 pb-3">
@@ -291,7 +512,7 @@ const Header = () => {
                     <span className="badge badge-pill badge-success">41</span>
                   </a>
                   <a href="#" className="dropdown-item pt-3 pb-3">
-                    <FaGear /> Setting{" "}
+                    <FaGear /> Settings{" "}
                   </a>
                   <a href="#" className="dropdown-item pt-3 pb-3">
                     <FaCircleQuestion /> FAQ{" "}

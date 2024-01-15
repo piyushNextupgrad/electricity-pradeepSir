@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa6";
 
 import Link from "next/link";
-import { postData } from "@/services/services";
+import { getData, postData } from "@/services/services";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Toaster, toast } from "sonner";
@@ -21,26 +21,33 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
+  
+  
 
   useEffect(() => {
     const token = localStorage.getItem("Etoken");
     if (token) {
       router.push("/Dashboard");
     }
+  
+
   }, []);
 
+ 
   //function to manage login form
   async function handleSubmit(event) {
     event.preventDefault();
     try {
       setisSubmitingLoader(true);
       const result = await postData("/login", { email: email, password: pass });
-      console.log("result", result);
+      // console.log("result", result);
       if (result.success) {
         localStorage.setItem("Etoken", result.data.token);
-        localStorage.setItem("username", result.data.name.name);
-        localStorage.setItem("email", result.data.name.email);
-
+        // localStorage.setItem("username", result.data.name.name);
+        // localStorage.setItem("email", result.data.name.email);
+        localStorage.setItem("UserID", result.data.name.id);
+        
+        
         setisSubmitingLoader(false);
         toast.success("Login Successfull");
         setTimeout(() => {

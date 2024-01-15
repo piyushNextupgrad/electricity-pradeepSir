@@ -2,14 +2,20 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { verifyIsLoggedIn } from "@/helper/helper";
 import { Toaster, toast } from "sonner";
+import { getData } from "@/services/services";
 
 const Dashboard = () => {
   const router = useRouter();
   const [isSubmitingLoader, setisSubmitingLoader] = useState(false);
+  
+  
 
   useEffect(() => {
     verifyIsLoggedIn(router);
+    
   }, []);
+
+  
   return (
     <>
       {isSubmitingLoader ? (
