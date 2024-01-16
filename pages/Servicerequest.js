@@ -64,7 +64,7 @@ const Servicerequest = () => {
       filter_user.map((item2) => {
         if (item.customer_id == item2.id) {
           item["customer_name"] = item2.name;
-          item["customer_address"] = item2.user_house_num + " " + item2.user_locality + " " + item2.user_landmark + " " + item2.user_city + " " + item2.user_state;
+          item["customer_address"] =  item2.user_locality +  " " + item2.user_city + " " + item2.user_state +" " + item2.user_country;
           item["customer_phno"] = item2.user_phno;
         }
       })
@@ -143,8 +143,8 @@ const Servicerequest = () => {
                           <th className="text-white">Service Name</th>
                           <th className="text-white">Service Cost</th>
                           <th className="text-white">Service Quantity</th>
-                          <th className="text-white">Service Avail Date and Time</th>
-                          <th className="text-white">Service Booking Date and Time</th>
+                          <th className="text-white">Service Avail Date</th>
+                          <th className="text-white">Service Booking Date</th>
                           <th className="text-white">Customer Name and ID</th>
                           <th className="text-white">Customer Phone</th>
                           <th className="text-white">Customer Location</th>
@@ -165,12 +165,12 @@ const Servicerequest = () => {
                             
                             <tr key={index}>
                               <th scope="row">{item.unique_service_id ? item.unique_service_id : <span></span>}</th>
-                              {console.log("item",item)}
+                              {/* {console.log("item",item)} */}
                               <td>{item.service_name}</td>
                               <td>${item.service_cost * item.qty}</td>
                               <td>{item.qty}</td>
-                              <td>{getFormatedDate(item.service_avail_date,"DD-MM-YYYY hh:mm")}</td>
-                              <td>{getFormatedDate(item.created_at,"DD-MM-YYYY hh:mm")}</td>
+                              <td>{getFormatedDate(item.service_avail_date,"DD-MM-YYYY")}</td>
+                              <td>{getFormatedDate(item.created_at,"DD-MM-YYYY")}</td>
                               <td>{item.customer_name} [ ID:{item.customer_id} ]</td>
                               <td>{item.customer_phno}</td>
                               <td>{item.customer_address}</td>

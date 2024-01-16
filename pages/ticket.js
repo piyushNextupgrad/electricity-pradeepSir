@@ -149,7 +149,7 @@ const Ticket = () => {
                                   <th className="text-white">Ticket ID</th>
                                   <th className="text-white">Service Booked ID</th>
                                   <th className="text-white">Service Name</th>
-                                  <th className="text-white">Ticket Date and time</th>
+                                  <th className="text-white">Ticket Date</th>
                                   <th className="text-white">Ticket Description</th>
                                   <th className="text-white">Customer Name and ID</th>
                                   <th className="text-white">Customer Address</th>
@@ -166,10 +166,10 @@ const Ticket = () => {
                                     <th scope="row">{item.id}</th>
                                     <td>{item.unique_service_id}</td>
                                     <td>{allServices.map((i) => i.subscription_id == item.service_id ? i.service_names : "")}</td>
-                                    <td>{getFormatedDate(item.created_at, "DD-MM-YYYY hh:mm")}</td>
+                                    <td>{getFormatedDate(item.created_at, "DD-MM-YYYY")}</td>
                                     <td className='cellOverlap'>{item.issue_desc}</td>
                                     <td>{allUser.map((u) => u.id == item.customer_id ? u.name : '')}</td>
-                                    <td>{allUser.map((u) => u.id == item.customer_id ? u.user_house_num + " " + u.user_locality + " " + u.user_landmark + " " + u.user_city + " " + u.user_state : '')}</td>
+                                    <td>{allUser.map((u) => u.id == item.customer_id ?  u.user_locality +  " " + u.user_city + " " + u.user_state + " " + u.user_country : '')}</td>
                                     <td>{allUser.map((u) => u.id == item.customer_id ? u.user_phno : '')}</td>
                                     <td>
                                       <select className="form-control" tabIndex={-1} aria-hidden="true" value={item.emp_id} onChange={(e) =>{setEmployeeAllotedId(e.target.value);item.emp_id=e.target.value}}>
