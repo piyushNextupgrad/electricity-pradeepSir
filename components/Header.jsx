@@ -167,7 +167,7 @@ const Header = () => {
             <div className="row">
               <div className="col-4 d-flex justify-content-center align-items-center">
                 <Row>
-                  <Image src={userPhoto == null ? "/dummy.jpg" : `https://nextupgrad.us/electricity/public/images/profile_photo/${userPhoto}`} height={200} width={200} alt="img" className="rounded-circle" />
+                  <Image src={userPhoto == null ? "/dummy.jpg" : `https://53c50cd527.nxcli.io/electricity/public/images/profile_photo/${userPhoto}`} height={200} width={200} alt="img" className="rounded-circle" />
                 </Row>
               </div>
               <div className="col-8">
@@ -488,7 +488,7 @@ const Header = () => {
                   </div>
                   <Image
                     className="avatar avatar-md brround"
-                    src={userPhoto == null ? "/dummy.jpg" : `https://nextupgrad.us/electricity/public/images/profile_photo/${userPhoto}`}
+                    src={userPhoto == null ? "/dummy.jpg" : `https://53c50cd527.nxcli.io/electricity/public/images/profile_photo/${userPhoto}`}
                     alt="image"
                     width={50}
                     height={50}
@@ -497,7 +497,7 @@ const Header = () => {
                 <div className="dropdown-menu dropdown-menu-right dropdown-menu-arrow w-250">
                   <div className="user-profile border-bottom p-3">
                     <div className="user-image">
-                      <img className="user-images" src={userPhoto == null ? "/dummy.jpg" : `https://nextupgrad.us/electricity/public/images/profile_photo/${userPhoto}`} alt="image" />
+                      <img className="user-images" src={userPhoto == null ? "/dummy.jpg" : `https://53c50cd527.nxcli.io/electricity/public/images/profile_photo/${userPhoto}`} alt="image" />
                     </div>
                     <div className="user-details">
                       <h4>{username}</h4>
